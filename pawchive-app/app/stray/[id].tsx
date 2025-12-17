@@ -121,7 +121,6 @@ export default function StrayDetail() {
   );
 }
 
-// Same styles as before — just copy-paste from previous message
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   hero: { height: 360, position: 'relative' },

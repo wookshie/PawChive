@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native';
 import { STRAYS } from '../../constants/strays';
 import { useRouter } from 'expo-router';
 
@@ -24,24 +25,26 @@ export default function HomeScreen() {
   ];
 
   const recentActivity = [
-    { icon: 'syringe', action: 'Charlie received vaccination', time: '2 hours ago' },
-    { icon: 'heart', action: 'Bella found a sponsor', time: '5 hours ago' },
-    { icon: 'home', action: 'Rocky was adopted!', time: '1 day ago' },
+    { icon: 'syringe', action: 'Charlie received vaccination', time: '2 hours ago', color: '#FF6B6B' },
+    { icon: 'heart', action: 'Bella found a sponsor', time: '5 hours ago', color: '#ff4081'},
+    { icon: 'home', action: 'Rocky was adopted!', time: '1 day ago', color: '#4CAF50' },
   ];
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.safeArea}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20}}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoEmoji}>Paw Print</Text>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../../assets/images/logo-pawchive.svg')}
+              style={styles.logoImage}
+              resizeMode="cover"
+            />
           </View>
           <Text style={styles.appName}>PawChive</Text>
         </View>
-        <TouchableOpacity style={styles.qrButton}>
-          <MaterialIcons name="qr-code-scanner" size={24} color="#555" />
-        </TouchableOpacity>
       </View>
 
       {/* Hero */}
@@ -75,7 +78,7 @@ export default function HomeScreen() {
       {/* Featured Strays - Now using real STRAYS data! */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Featured Strays</Text>
+          <Text style={styles.boldSectionTitle}>Featured Strays</Text>
           <TouchableOpacity onPress={() => router.push('/strays')}>
             <Text style={styles.viewAll}>View All</Text>
           </TouchableOpacity>
@@ -105,13 +108,15 @@ export default function HomeScreen() {
       {/* Recent Activity */}
       <View style={styles.section}>
         <View style={styles.activityHeader}>
-          <MaterialIcons name="activity" size={28} color="#FF6B6B" />
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <MaterialIcons name="timeline" size={28} color="#FF6B6B" />
+          <Text style={styles.boldSectionTitle}>Recent Activity</Text>
         </View>
         {recentActivity.map((act, i) => (
           <View key={i} style={styles.activityCard}>
-            <View style={styles.activityIcon}>
-              <Text style={styles.activityEmoji}>{act.icon}</Text>
+            <View style={[styles.activityIcon, { backgroundColor: act.color + '20' }]}>
+              {act.icon === 'syringe' && <MaterialIcons name="vaccines" size={28} color={act.color} />}
+              {act.icon === 'heart' && <Ionicons name="heart" size={28} color={act.color} />}
+              {act.icon === 'home' && <Ionicons name="home" size={28} color={act.color} />}
             </View>
             <View style={styles.activityText}>
               <Text style={styles.activityAction}>{act.action}</Text>
@@ -175,6 +180,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -205,31 +211,28 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   viewAll: { color: '#007AFF', fontWeight: '600' },
 
-  // Updated Featured Stray Card with real image
-  strayCard: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    backgroundColor: '#fff', 
-    padding: 16, 
-    borderRadius: 16, 
-    marginBottom: 12, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.08, 
-    shadowRadius: 6, 
-    elevation: 2 
-  },
-  strayImage: { 
-    width: 70, 
-    height: 70, 
-    borderRadius: 35, 
-    marginRight: 16 
-  },
+  logoContainer: { width: 44, height: 44, borderRadius: 22, overflow: 'hidden', backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#57AFDB',},
+  logoImage: { width: 44, height: 44},
+  appName: { fontSize: 22, fontWeight: 'bold', marginLeft: 10, },
+
+  safeArea: { flex: 1, backgroundColor: '#f8f9fa'},
+
+  strayCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 16, borderRadius: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, elevation: 2 },
+  strayImage: { width: 70, height: 70, borderRadius: 35, marginRight: 16 },
+
   strayInfo: { flex: 1 },
   strayName: { fontSize: 18, fontWeight: 'bold' },
   locationRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   strayLocation: { fontSize: 13, color: '#666', marginLeft: 4 },
   badge: { backgroundColor: '#4CAF50', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
   badgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+
+  boldSectionTitle: {
+  fontSize: 24,
+  fontWeight: 'bold',        // ← Makes it bold
+  color: '#333',
+  marginBottom: 16,
+},
 
   activityHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 16 },
   activityCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 16, borderRadius: 16, marginBottom: 12 },
@@ -260,14 +263,14 @@ const styles = StyleSheet.create({
   impactCardPrimary: { backgroundColor: '#FF6B6B10', padding: 20, borderRadius: 20, width: (width - 80) / 2, alignItems: 'center' },
   impactCardSuccess: { backgroundColor: '#4CAF5010', padding: 20, borderRadius: 20, width: (width - 80) / 2, alignItems: 'center' },
   impactCardAccent: { backgroundColor: '#FFB80010', padding: 20, borderRadius: 20, width: (width - 80) / 2, alignItems: 'center' },
-  impactCardPink: { backgroundColor: '#FF408110', padding: 20, borderRadius: 20, width: (width - 80) / 2, alignItems: 'center' },
+  impactCardPink: { backgroundColor: '#44cdff10', padding: 20, borderRadius: 20, width: (width - 80) / 2, alignItems: 'center' },
   impactNum: { fontSize: 36, fontWeight: 'bold', color: '#FF6B6B' },
   impactNumGreen: { fontSize: 36, fontWeight: 'bold', color: '#4CAF50' },
   impactNumYellow: { fontSize: 36, fontWeight: 'bold', color: '#FFB800' },
-  impactNumPink: { fontSize: 36, fontWeight: 'bold', color: '#FF4081' },
+  impactNumPink: { fontSize: 36, fontWeight: 'bold', color: '#57AFDB' },
   impactLabel: { marginTop: 8, color: '#666' },
 
-  ctaSection: { padding: 30, backgroundColor: '#FF6B6B', alignItems: 'center' },
+  ctaSection: { padding: 30, backgroundColor: '#57AFDB', alignItems: 'center' },
   ctaTitle: { fontSize: 26, fontWeight: 'bold', color: '#fff', textAlign: 'center' },
   ctaDesc: { color: '#ffe0e0', textAlign: 'center', marginVertical: 12, lineHeight: 22 },
   accentButtonLarge: { backgroundColor: '#FFB800', paddingHorizontal: 40, paddingVertical: 16, borderRadius: 30, marginTop: 10 },
