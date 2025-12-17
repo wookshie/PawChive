@@ -5,7 +5,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FF6B6B',
+        tabBarActiveTintColor: '#57AFDB',
         tabBarInactiveTintColor: '#888',
         headerShown: false,
         tabBarStyle: { height: 60, paddingBottom: 8 },
@@ -19,10 +19,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="alerts"
+        name="messages"
         options={{
-          title: 'Alerts',
-          tabBarIcon: ({ color, size }) => <Ionicons name="alert-circle" size={size} color={color} />,
+          title: 'Messages',
+          tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble" size={size} color={color} />,
+          // tabBarBadge: 3,
         }}
       />
       <Tabs.Screen
@@ -33,11 +34,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="notifications"
+        name="alerts"
         options={{
-          title: 'Notifications',
+          title: 'Alerts',
           tabBarIcon: ({ color, size }) => <Ionicons name="notifications" size={size} color={color} />,
-          tabBarBadge: 3,
         }}
       />
       <Tabs.Screen

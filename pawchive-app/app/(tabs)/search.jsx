@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const MessagesScreen = () => {
+const SearchScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Messages</Text>
-      <Text>No new messages at the moment.</Text>
+      <Text style={styles.title}>Search</Text>
+      <Text>No new pets at the moment.</Text>
     </View>
   );
 };
@@ -25,4 +25,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MessagesScreen;
+export default SearchScreen;
