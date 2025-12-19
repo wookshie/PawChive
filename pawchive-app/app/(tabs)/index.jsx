@@ -52,15 +52,15 @@ export default function HomeScreen() {
         <Image source={require('../../assets/hero-campus.jpg')} style={styles.heroImage} />
         <Text style={styles.heroTitle}>A Smarter Way to Care for Campus Strays</Text>
         <Text style={styles.heroSubtitle}>From Health to Adoption</Text>
-        <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/strays')}>
+        <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/search')}>
           <Text style={styles.accentButtonText}>Get Started</Text>
         </TouchableOpacity>
       </View>
 
       {/* 3 Steps */}
       <View style={styles.stepsSection}>
-        <Text style={styles.sectionTitle}>Give a Stray a Chance in</Text>
-        <Text style={styles.accentTitle}>3 Simple Steps</Text>
+        <Text style={[styles.sectionTitle, { fontWeight: 'bold' }]}>Give a Stray a Chance in</Text>
+        <Text style={styles.heroSubtitle}>3 Simple Steps</Text>
 
         {steps.map((step, i) => (
           <View key={i} style={styles.stepCard}>
@@ -70,7 +70,7 @@ export default function HomeScreen() {
           </View>
         ))}
 
-        <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/strays')}>
+        <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/seacrh')}>
           <Text style={styles.accentButtonText}>Browse Strays</Text>
         </TouchableOpacity>
       </View>
@@ -79,7 +79,7 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.boldSectionTitle}>Featured Strays</Text>
-          <TouchableOpacity onPress={() => router.push('/strays')}>
+          <TouchableOpacity onPress={() => router.push('/search')}>
             <Text style={styles.viewAll}>View All</Text>
           </TouchableOpacity>
         </View>
@@ -88,7 +88,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             key={stray.id}
             style={styles.strayCard}
-            onPress={() => router.push(`/stray/${stray.id}`)} // Correct route!
+            onPress={() => router.push(`/stray/${stray.id}`)}
           >
             <Image source={stray.image} style={styles.strayImage} resizeMode="cover" />
             <View style={styles.strayInfo}>
@@ -175,7 +175,7 @@ export default function HomeScreen() {
         <Text style={styles.ctaDesc}>
           Join our community of animal lovers and help give campus strays a better life
         </Text>
-        <TouchableOpacity style={styles.accentButtonLarge} onPress={() => router.push('/strays')}>
+        <TouchableOpacity style={styles.accentButtonLarge} onPress={() => router.push('/search')}>
           <Text style={styles.accentButtonTextLarge}>Explore Strays</Text>
         </TouchableOpacity>
       </View>
