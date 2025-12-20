@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Image,
   SafeAreaView,
   StyleSheet,
   ScrollView,
@@ -13,7 +14,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { CheckBox } from 'react-native-elements'; // We'll use this for checkbox (install below)
+import { CheckBox } from 'react-native-elements';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -87,7 +88,11 @@ export default function SignupScreen() {
           {/* Main Content */}
           <View style={styles.content}>
             <View style={styles.logoContainer}>
-              <Text style={styles.logoEmoji}>Paw Print</Text>
+              <Image
+                source={require('../../assets/images/logo-pawchive.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
             </View>
 
             <Text style={styles.title}>Create Account</Text>
@@ -204,10 +209,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  logoContainer: {
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
+  logoContainer: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignSelf: 'center', marginBottom: 16 },
+  logoImage: { width: 60, height: 60, borderWidth: 2, borderColor: '#57AFDB', alignSelf: 'center', borderRadius: 30 },
+
   logoEmoji: {
     fontSize: 48,
   },
