@@ -17,6 +17,8 @@ const slides = [
   require('../../assets/carousel-1.png'),
   require('../../assets/carousel-2.png'),
   require('../../assets/carousel-3.png'),
+  require('../../assets/carousel-4.png'),
+  require('../../assets/carousel-5.png'),
 ];
 
 export default function LandingScreen() {
@@ -82,14 +84,14 @@ export default function LandingScreen() {
 
           <TouchableOpacity
             style={styles.loginButton}
-            onPress={() => router.push('/(auth)/login.jsx')}
+            onPress={() => router.push('/(auth)/login')}
           >
             <Text style={styles.loginText}>Login</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.signupButton}
-            onPress={() => router.push('/(auth)/signup.jsx')}
+            onPress={() => router.push('/(auth)/signup')}
           >
             <Text style={styles.signupText}>Create Account</Text>
           </TouchableOpacity>
