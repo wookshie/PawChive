@@ -8,7 +8,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { STRAYS } from '../../constants/strays';
 
@@ -21,7 +21,8 @@ export default function StrayDetail() {
   const stray = STRAYS.find(s => s.id === Number(id)) || STRAYS[0];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
       {/* Hero */}
       <View style={styles.hero}>
         <Image source={stray.image} style={styles.heroImage} resizeMode="cover" />
@@ -117,7 +118,7 @@ export default function StrayDetail() {
           <Text style={styles.sponsorText}>Sponsor</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
