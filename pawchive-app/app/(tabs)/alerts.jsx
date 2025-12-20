@@ -4,8 +4,9 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   StyleSheet,
+  Platform,
+  StatusBar
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
@@ -77,11 +78,11 @@ export default function AlertsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.safeContainer}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <Text style={styles.title}>Notifications</Text>
+          <Text style={styles.title}>🔔 Notifications</Text>
           {unreadCount > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{unreadCount} new</Text>
@@ -138,7 +139,7 @@ export default function AlertsScreen() {
           </Text>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -153,6 +154,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderColor: '#eee',
+  },
+  safeContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    // Android: Get exact height of status bar + 10px buffer
+    // iOS: Hardcode ~50px (covers notches and dynamic islands)
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
   headerTop: {
     flexDirection: 'row',

@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native';
 import { STRAYS } from '../../constants/strays';
 import { useRouter } from 'expo-router';
 
@@ -31,7 +32,7 @@ export default function HomeScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeContainer}>
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20}}>
       {/* Header */}
       <View style={styles.header}>
@@ -180,7 +181,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -215,7 +216,13 @@ const styles = StyleSheet.create({
   logoImage: { width: 44, height: 44},
   appName: { fontSize: 22, fontWeight: 'bold', marginLeft: 10, },
 
-  safeArea: { flex: 1, backgroundColor: '#f8f9fa'},
+  safeContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    // Android: Get exact height of status bar + 10px buffer
+    // iOS: Hardcode ~50px (covers notches and dynamic islands)
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
+  },
 
   strayCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 16, borderRadius: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 6, elevation: 2 },
   strayImage: { width: 70, height: 70, borderRadius: 35, marginRight: 16 },
@@ -229,7 +236,7 @@ const styles = StyleSheet.create({
 
   boldSectionTitle: {
   fontSize: 24,
-  fontWeight: 'bold',        // ← Makes it bold
+  fontWeight: 'bold',
   color: '#333',
   marginBottom: 16,
 },

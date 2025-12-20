@@ -6,11 +6,11 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  SafeAreaView,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Dimensions,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
@@ -86,7 +86,7 @@ export default function MessagesScreen() {
     const conversation = conversations.find(c => c.id === selectedChat);
 
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.safeContainer}>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -172,15 +172,15 @@ export default function MessagesScreen() {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
-      </SafeAreaView>
+      </View>
     );
   }
 
   // Conversations List View
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.safeContainer}>
       <View style={styles.listHeader}>
-        <Text style={styles.pageTitle}>Messages</Text>
+        <Text style={styles.pageTitle}>💬 Messages</Text>
 
         <View style={styles.searchContainer}>
           <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
@@ -240,7 +240,7 @@ export default function MessagesScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -293,6 +293,14 @@ const styles = StyleSheet.create({
   lastMessage: { fontSize: 14, color: '#666', flex: 1, marginRight: 8 },
   unreadBadge: { backgroundColor: '#FF6B6B', width: 22, height: 22, borderRadius: 11, justifyContent: 'center', alignItems: 'center' },
   unreadCount: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  
+  safeContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    // Android: Get exact height of status bar + 10px buffer
+    // iOS: Hardcode ~50px (covers notches and dynamic islands)
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
+  },
 
   // Chat Detail
   chatHeader: {

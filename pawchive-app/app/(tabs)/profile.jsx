@@ -4,11 +4,12 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   StyleSheet,
   Modal,
   TextInput,
   Alert,
+  Platform,
+  StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -70,11 +71,11 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.safeContainer}>
       <ScrollView style={styles.scrollView}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.title}>👤 Profile</Text>
         </View>
 
         {/* Profile Info Card */}
@@ -214,14 +215,20 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f0f9ff' },
   scrollView: { flex: 1 },
-
+  safeContainer: {
+      flex: 1,
+      backgroundColor: '#f8f9fa',
+      // Android: Get exact height of status bar + 10px buffer
+      // iOS: Hardcode ~50px (covers notches and dynamic islands)
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

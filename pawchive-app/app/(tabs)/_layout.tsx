@@ -41,6 +41,7 @@ export default function TabLayout() {
         name="search"
         options={{
           title: 'Search',
+          tabBarLabel: () => null,
           tabBarIcon: ({ focused }) => (
             <View
               style={{

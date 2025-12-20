@@ -5,10 +5,11 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   StyleSheet,
   FlatList,
   Image,
+  Platform, 
+  StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -150,10 +151,10 @@ export default function SearchScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.safeContainer}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Meet Our Campus Strays 🐶</Text>
+        <Text style={styles.title}>🐶 Meet Our Campus Strays</Text>
         <Text style={styles.subtitle}>Find your new best friend</Text>
 
         {/* Search Bar */}
@@ -200,7 +201,7 @@ export default function SearchScreen() {
         columnWrapperStyle={styles.gridRow}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -223,6 +224,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginBottom: 20,
+  },
+  safeContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    // Android: Get exact height of status bar + 10px buffer
+    // iOS: Hardcode ~50px (covers notches and dynamic islands)
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
   searchContainer: {
     flexDirection: 'row',
