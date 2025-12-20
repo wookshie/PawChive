@@ -11,15 +11,16 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
+import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
+  const router = useRouter();
+
   // Mock user data
   const user = {
     email: 'test@student.edu',
     created_at: '2024-01-15',
   };
-
 
   // Editable state
   const [name, setName] = useState(user.email.split('@')[0]);
@@ -28,13 +29,11 @@ export default function ProfileScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [editModalVisible, setEditModalVisible] = useState(false);
 
-
   const stats = [
     { label: 'Strays Helped', value: '12', color: '#F44336', icon: 'heart' },
     { label: 'Adoptions', value: '3', color: '#4CAF50', icon: 'checkmark-circle' },
     { label: 'Sponsorships', value: '5', color: '#FFB800', icon: 'calendar' },
   ];
-
 
   const activityHistory = [
     { action: 'Adopted Charlie', date: 'Dec 15, 2024', icon: 'home', color: '#4CAF50' },
@@ -43,17 +42,32 @@ export default function ProfileScreen() {
     { action: 'Donated pet food', date: 'Sept 5, 2024', icon: 'fast-food', color: '#FF9800' },
   ];
 
-
   const saveProfile = () => {
     if (password && password !== confirmPassword) {
       Alert.alert('Error', "Passwords don't match!");
       return;
     }
-    // In real app: save to backend or AsyncStorage
     Alert.alert('Success', 'Profile updated successfully!');
     setEditModalVisible(false);
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to log out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: () => {
+            // In real app: await supabase.auth.signOut();
+            router.replace('/(auth)/landing'); // Redirect to landing page
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,11 +75,7 @@ export default function ProfileScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Profile</Text>
-          {/* <TouchableOpacity style={styles.settingsBtn}>
-            <Ionicons name="settings-outline" size={28} color="#333" />
-          </TouchableOpacity> */}
         </View>
-
 
         {/* Profile Info Card */}
         <View style={styles.profileCard}>
@@ -75,7 +85,6 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-
           <View style={styles.userInfo}>
             <View style={styles.nameRow}>
               <Text style={styles.userName}>{name}</Text>
@@ -84,17 +93,14 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
 
-
             <View style={styles.emailRow}>
               <Ionicons name="mail-outline" size={16} color="#888" />
               <Text style={styles.email}>{email}</Text>
             </View>
 
-
             <View style={styles.badge}>
               <Text style={styles.badgeText}>Student Volunteer</Text>
             </View>
-
 
             <View style={styles.memberRow}>
               <Ionicons name="calendar-outline" size={16} color="#888" />
@@ -102,7 +108,6 @@ export default function ProfileScreen() {
             </View>
           </View>
         </View>
-
 
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
@@ -114,7 +119,6 @@ export default function ProfileScreen() {
             </View>
           ))}
         </View>
-
 
         {/* Recent Activity */}
         <View style={styles.activityCard}>
@@ -132,13 +136,10 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-
         {/* Account Settings */}
         <View style={styles.settingsCard}>
           <Text style={styles.settingsTitle}>Account Settings</Text>
 
-
-          {/* Edit Profile - Opens Modal */}
           <TouchableOpacity
             style={styles.settingItem}
             onPress={() => setEditModalVisible(true)}
@@ -147,22 +148,18 @@ export default function ProfileScreen() {
             <Text style={styles.settingText}>Edit Profile</Text>
           </TouchableOpacity>
 
-
-          {/* Preferences - Just a placeholder */}
           <TouchableOpacity style={styles.settingItem}>
             <Ionicons name="settings-outline" size={24} color="#333" />
             <Text style={styles.settingText}>Preferences</Text>
           </TouchableOpacity>
 
-
-          {/* Logout - Just a red text, no background */}
-          <TouchableOpacity style={styles.logoutItem}>
+          {/* LOGOUT BUTTON - NOW WORKS! */}
+          <TouchableOpacity style={styles.logoutItem} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={24} color="#F44336" />
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-
 
       {/* Edit Profile Modal */}
       <Modal visible={editModalVisible} animationType="slide" transparent={true}>
@@ -174,7 +171,6 @@ export default function ProfileScreen() {
                 <Ionicons name="close" size={28} color="#333" />
               </TouchableOpacity>
             </View>
-
 
             <TextInput
               style={styles.input}
@@ -191,7 +187,7 @@ export default function ProfileScreen() {
             />
             <TextInput
               style={styles.input}
-              placeholder="New Password"
+              placeholder="New Password (optional)"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -203,7 +199,6 @@ export default function ProfileScreen() {
               onChangeText={setConfirmPassword}
               secureTextEntry
             />
-
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -223,11 +218,9 @@ export default function ProfileScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f0f9ff' },
   scrollView: { flex: 1 },
-
 
   header: {
     flexDirection: 'row',
@@ -238,8 +231,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   title: { fontSize: 28, fontWeight: 'bold', color: '#333' },
-  settingsBtn: { padding: 8 },
-
 
   profileCard: {
     backgroundColor: '#fff',
@@ -284,7 +275,6 @@ const styles = StyleSheet.create({
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   memberSince: { fontSize: 14, color: '#888' },
 
-
   statsGrid: { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 20, marginBottom: 20 },
   statCard: {
     backgroundColor: '#fff',
@@ -297,7 +287,6 @@ const styles = StyleSheet.create({
   },
   statValue: { fontSize: 28, fontWeight: 'bold', color: '#333', marginVertical: 8 },
   statLabel: { fontSize: 12, color: '#666' },
-
 
   activityCard: {
     backgroundColor: '#fff',
@@ -314,7 +303,6 @@ const styles = StyleSheet.create({
   activityText: { flex: 1 },
   activityAction: { fontSize: 15, fontWeight: '600', color: '#333' },
   activityDate: { fontSize: 13, color: '#888', marginTop: 4 },
-
 
   settingsCard: {
     backgroundColor: '#fff',
@@ -340,7 +328,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   logoutText: { fontSize: 16, color: '#F44336', marginLeft: 16, flex: 1, fontWeight: '600' },
-
 
   // Modal Styles
   modalOverlay: {
@@ -390,4 +377,3 @@ const styles = StyleSheet.create({
   },
   saveText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
-

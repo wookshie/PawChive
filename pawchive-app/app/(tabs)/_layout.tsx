@@ -37,7 +37,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* CUSTOM MIDDLE TAB WITH PAW ICON */}
       <Tabs.Screen
         name="search"
         options={{
