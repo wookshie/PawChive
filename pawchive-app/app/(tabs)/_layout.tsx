@@ -59,7 +59,7 @@ export default function TabLayout() {
               }}
             >
             <Image
-              source={require('../../assets/icons/paw-print.svg')}
+              source={require('../../assets/icons/paw-print.png')}
               style={{
                 width: 50,
                 height: 50,

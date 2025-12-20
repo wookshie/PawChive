@@ -62,7 +62,7 @@ export default function LandingScreen() {
         <View style={styles.header}>
           <View style={styles.logoContainer}>
             <Image
-                source={require('../../assets/icons/paw-print.svg')}
+                source={require('../../assets/images/logo-pawchive.png')}
                 style={styles.logoImage}
                 resizeMode="contain"
             />

@@ -38,7 +38,7 @@ export default function HomeScreen() {
         <View style={styles.headerLeft}>
           <View style={styles.logoContainer}>
             <Image
-              source={require('../../assets/images/logo-pawchive.svg')}
+              source={require('../../assets/images/logo-pawchive.png')}
               style={styles.logoImage}
               resizeMode="cover"
             />
