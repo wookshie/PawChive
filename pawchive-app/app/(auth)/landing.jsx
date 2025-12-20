@@ -64,9 +64,9 @@ export default function LandingScreen() {
         <View style={styles.header}>
           <View style={styles.logoContainer}>
             <Image
-                source={require('../../assets/images/logo-pawchive.png')}
-                style={styles.logoImage}
-                resizeMode="contain"
+              source={require('../../assets/images/logo-pawchive.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
             />
           </View>
           <Text style={styles.appName}>PAWCHIVE</Text>
@@ -77,24 +77,26 @@ export default function LandingScreen() {
 
         {/* Bottom CTA Card */}
         <View style={styles.bottomCard}>
-          <Text style={styles.welcomeTitle}>Welcome to PawChive</Text>
-          <Text style={styles.welcomeSubtitle}>
-            Start caring for campus strays today
-          </Text>
+          <View style={styles.bottomCardContent}>
+            <Text style={styles.welcomeTitle}>Welcome to PawChive</Text>
+            <Text style={styles.welcomeSubtitle}>
+              Start caring for campus strays today
+            </Text>
 
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => router.push('/(auth)/login')}
-          >
-            <Text style={styles.loginText}>Log in</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => router.push('/(auth)/login')}
+            >
+              <Text style={styles.loginText}>Log in</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.signupButton}
-            onPress={() => router.push('/(auth)/signup')}
-          >
-            <Text style={styles.signupText}>Create Account</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.signupButton}
+              onPress={() => router.push('/(auth)/signup')}
+            >
+              <Text style={styles.signupText}>Create Account</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>
@@ -114,7 +116,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Dark gradient overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   content: {
     flex: 1,
@@ -127,32 +129,42 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 20,
   },
-  logoContainer: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#57AFDB'},
-  logoImage: { width: 40, height: 40},
-  
-  logoEmoji: {
-    fontSize: 32,
+  logoContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#57AFDB',
   },
+  logoImage: { width: 40, height: 40 },
   appName: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
     letterSpacing: 2,
-    marginLeft: 12
+    marginLeft: 12,
   },
+
   bottomCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    marginHorizontal: 30,
-    marginBottom: 50,
-    padding: 32,
-    borderRadius: 40,
-    alignItems: 'center',
+    width: '100%',                    
+    borderTopLeftRadius: 40,          
+    borderTopRightRadius: 40,
     shadowColor: '#000',
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 15,
-    backdropFilter: 'blur(10px)', // Note: not supported on RN, but visual is similar
   },
+
+  bottomCardContent: {
+    padding: 32,
+    paddingBottom: 50,
+    alignItems: 'center',
+  },
+
   welcomeTitle: {
     fontSize: 28,
     fontWeight: 'bold',
