@@ -3,8 +3,10 @@ import {
   View,
   Text,
   TextInput,
+  Image,
   TouchableOpacity,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -65,7 +67,11 @@ export default function LoginScreen() {
           {/* Main Content */}
           <View style={styles.content}>
             <View style={styles.logoContainer}>
-              <Text style={styles.logoEmoji}>Paw Print</Text>
+              <Image
+                source={require('../../assets/images/logo-pawchive.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
             </View>
 
             <Text style={styles.title}>Welcome Back</Text>
@@ -149,12 +155,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  logoContainer: {
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
+  logoContainer: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignSelf: 'center', marginBottom: 16 },
+  logoImage: { width: 60, height: 60, borderWidth: 2, borderColor: '#57AFDB', alignSelf: 'center', borderRadius: 30 },
+
   logoEmoji: {
-    fontSize: 48,
+    fontSize: 32,
   },
   title: {
     fontSize: 32,
