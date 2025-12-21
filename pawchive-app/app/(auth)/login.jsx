@@ -5,11 +5,11 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -49,7 +49,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.safeContainer}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -127,14 +127,21 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  // container: {
+  //   flex: 1,
+  //   backgroundColor: '#f0f9ff',
+  // },
+  safeContainer: {
     flex: 1,
     backgroundColor: '#f0f9ff',
+    // Android: Get exact height of status bar + 10px buffer
+    // iOS: Hardcode ~50px (covers notches and dynamic islands)
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
   scrollContent: {
     flexGrow: 1,
