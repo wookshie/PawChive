@@ -78,9 +78,9 @@ export default function LandingScreen() {
         {/* Bottom CTA Card */}
         <View style={styles.bottomCard}>
           <View style={styles.bottomCardContent}>
-            <Text style={styles.welcomeTitle}>Welcome to PawChive</Text>
+            <Text style={styles.welcomeTitle}>Welcome to PawChive!</Text>
             <Text style={styles.welcomeSubtitle}>
-              Start caring for campus strays today
+              Start caring for campus strays today.
             </Text>
 
             <TouchableOpacity
