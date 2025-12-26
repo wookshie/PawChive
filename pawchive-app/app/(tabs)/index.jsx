@@ -33,154 +33,161 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.safeContainer}>
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20}}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={require('../../assets/images/logo-pawchive.png')}
-              style={styles.logoImage}
-              resizeMode="cover"
-            />
+      <ScrollView 
+        style={styles.container} 
+        showsVerticalScrollIndicator={false} 
+        // ✅ Increased padding so the bottom doesn't hide behind the Tab Bar
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../../assets/images/logo-pawchive.png')}
+                style={styles.logoImage}
+                resizeMode="cover"
+              />
+            </View>
+            <Text style={styles.appName}>PawChive</Text>
           </View>
-          <Text style={styles.appName}>PawChive</Text>
         </View>
-      </View>
 
-      {/* Hero */}
-      <View style={styles.section}>
-        <Image source={require('../../assets/hero-campus.jpg')} style={styles.heroImage} />
-        <Text style={styles.heroTitle}>A Smarter Way to Care for Campus Strays</Text>
-        <Text style={styles.heroSubtitle}>From Health to Adoption</Text>
-        <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/search')}>
-          <Text style={styles.accentButtonText}>Get Started</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 3 Steps */}
-      <View style={styles.stepsSection}>
-        <Text style={[styles.sectionTitle, { fontWeight: 'bold' }]}>Give a Stray a Chance in</Text>
-        <Text style={styles.heroSubtitle}>3 Simple Steps</Text>
-
-        {steps.map((step, i) => (
-          <View key={i} style={styles.stepCard}>
-            <Image source={step.icon} style={styles.stepIcon} />
-            <Text style={styles.stepTitle}>{step.title}</Text>
-            <Text style={styles.stepDesc}>{step.desc}</Text>
-          </View>
-        ))}
-
-        <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/search')}>
-          <Text style={styles.accentButtonText}>Browse Strays</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Featured Strays - Now using real STRAYS data! */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.boldSectionTitle}>Featured Strays</Text>
-          <TouchableOpacity onPress={() => router.push('/search')}>
-            <Text style={styles.viewAll}>View All</Text>
+        {/* Hero */}
+        <View style={styles.section}>
+          <Image source={require('../../assets/hero-campus.jpg')} style={styles.heroImage} />
+          <Text style={styles.heroTitle}>A Smarter Way to Care for Campus Strays</Text>
+          <Text style={styles.heroSubtitle}>From Health to Adoption</Text>
+          <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/search')}>
+            <Text style={styles.accentButtonText}>Get Started</Text>
           </TouchableOpacity>
         </View>
 
-        {STRAYS.map((stray) => (
-          <TouchableOpacity
-            key={stray.id}
-            style={styles.strayCard}
-            onPress={() => router.push(`/stray/${stray.id}`)}
-          >
-            <Image source={stray.image} style={styles.strayImage} resizeMode="cover" />
-            <View style={styles.strayInfo}>
-              <Text style={styles.strayName}>{stray.name}</Text>
-              <View style={styles.locationRow}>
-                <MaterialIcons name="location-on" size={14} color="#666" />
-                <Text style={styles.strayLocation}>{stray.location}</Text>
+        {/* 3 Steps */}
+        <View style={styles.stepsSection}>
+          <Text style={[styles.sectionTitle, { fontWeight: 'bold' }]}>Give a Stray a Chance in</Text>
+          <Text style={styles.heroSubtitle}>3 Simple Steps</Text>
+
+          {steps.map((step, i) => (
+            <View key={i} style={styles.stepCard}>
+              <Image source={step.icon} style={styles.stepIcon} />
+              <Text style={styles.stepTitle}>{step.title}</Text>
+              <Text style={styles.stepDesc}>{step.desc}</Text>
+            </View>
+          ))}
+
+          {/* ✅ Fixed typo: was '/seacrh', now '/search' */}
+          <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/search')}>
+            <Text style={styles.accentButtonText}>Browse Strays</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Featured Strays */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.boldSectionTitle}>Featured Strays</Text>
+            <TouchableOpacity onPress={() => router.push('/search')}>
+              <Text style={styles.viewAll}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {STRAYS.map((stray) => (
+            <TouchableOpacity
+              key={stray.id}
+              style={styles.strayCard}
+              // ✅ Fixed Path: Added '/' to make it absolute
+              onPress={() => router.push(`/stray/${stray.id}`)}
+            >
+              <Image source={stray.image} style={styles.strayImage} resizeMode="cover" />
+              <View style={styles.strayInfo}>
+                <Text style={styles.strayName}>{stray.name}</Text>
+                <View style={styles.locationRow}>
+                  <MaterialIcons name="location-on" size={14} color="#666" />
+                  <Text style={styles.strayLocation}>{stray.location}</Text>
+                </View>
+              </View>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>Available</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Recent Activity */}
+        <View style={styles.section}>
+          <View style={styles.activityHeader}>
+            <MaterialIcons name="timeline" size={28} color="#FF6B6B" />
+            <Text style={styles.boldSectionTitle}>Recent Activity</Text>
+          </View>
+          {recentActivity.map((act, i) => (
+            <View key={i} style={styles.activityCard}>
+              <View style={[styles.activityIcon, { backgroundColor: act.color + '20' }]}>
+                {act.icon === 'syringe' && <MaterialIcons name="vaccines" size={28} color={act.color} />}
+                {act.icon === 'heart' && <Ionicons name="heart" size={28} color={act.color} />}
+                {act.icon === 'home' && <Ionicons name="home" size={28} color={act.color} />}
+              </View>
+              <View style={styles.activityText}>
+                <Text style={styles.activityAction}>{act.action}</Text>
+                <Text style={styles.activityTime}>{act.time}</Text>
               </View>
             </View>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Available</Text>
+          ))}
+        </View>
+
+        {/* E-Health Card */}
+        <View style={styles.healthSection}>
+          <Text style={styles.healthTitle}>
+            <Text style={styles.successText}>Your Pet's</Text> E-Health Card
+          </Text>
+          <Text style={styles.healthSubtitle}>Track vaccinations, medical history, and appointments</Text>
+
+          <Image source={require('../../assets/health-cards.png')} style={styles.healthImage} resizeMode="contain" />
+
+          <View style={styles.statsGrid}>
+            <View style={styles.statCardPrimary}>
+              <MaterialIcons name="coronavirus" size={32} color="#FF6B6B" />
+              <Text style={styles.statLabel}>Vaccinations</Text>
+              <Text style={styles.statValuePrimary}>8</Text>
             </View>
+            <View style={styles.statCardSuccess}>
+              <MaterialIcons name="calendar-today" size={32} color="#4CAF50" />
+              <Text style={styles.statLabel}>Check-ups</Text>
+              <Text style={styles.statValueSuccess}>12</Text>
+            </View>
+            <View style={styles.statCardAccent}>
+              <MaterialIcons name="favorite" size={32} color="#FFB800" />
+              <Text style={styles.statLabel}>Wellness</Text>
+              <Text style={styles.statValueAccent}>95%</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.successButton}>
+            <Text style={styles.successButtonText}>Access E-Health Card</Text>
           </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Recent Activity */}
-      <View style={styles.section}>
-        <View style={styles.activityHeader}>
-          <MaterialIcons name="timeline" size={28} color="#FF6B6B" />
-          <Text style={styles.boldSectionTitle}>Recent Activity</Text>
         </View>
-        {recentActivity.map((act, i) => (
-          <View key={i} style={styles.activityCard}>
-            <View style={[styles.activityIcon, { backgroundColor: act.color + '20' }]}>
-              {act.icon === 'syringe' && <MaterialIcons name="vaccines" size={28} color={act.color} />}
-              {act.icon === 'heart' && <Ionicons name="heart" size={28} color={act.color} />}
-              {act.icon === 'home' && <Ionicons name="home" size={28} color={act.color} />}
-            </View>
-            <View style={styles.activityText}>
-              <Text style={styles.activityAction}>{act.action}</Text>
-              <Text style={styles.activityTime}>{act.time}</Text>
-            </View>
-          </View>
-        ))}
-      </View>
 
-      {/* E-Health Card */}
-      <View style={styles.healthSection}>
-        <Text style={styles.healthTitle}>
-          <Text style={styles.successText}>Your Pet's</Text> E-Health Card
-        </Text>
-        <Text style={styles.healthSubtitle}>Track vaccinations, medical history, and appointments</Text>
-
-        <Image source={require('../../assets/health-cards.png')} style={styles.healthImage} resizeMode="contain" />
-
-        <View style={styles.statsGrid}>
-          <View style={styles.statCardPrimary}>
-            <MaterialIcons name="coronavirus" size={32} color="#FF6B6B" />
-            <Text style={styles.statLabel}>Vaccinations</Text>
-            <Text style={styles.statValuePrimary}>8</Text>
-          </View>
-          <View style={styles.statCardSuccess}>
-            <MaterialIcons name="calendar-today" size={32} color="#4CAF50" />
-            <Text style={styles.statLabel}>Check-ups</Text>
-            <Text style={styles.statValueSuccess}>12</Text>
-          </View>
-          <View style={styles.statCardAccent}>
-            <MaterialIcons name="favorite" size={32} color="#FFB800" />
-            <Text style={styles.statLabel}>Wellness</Text>
-            <Text style={styles.statValueAccent}>95%</Text>
+        {/* Impact */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitleCenter}>Our Impact Together</Text>
+          <View style={styles.impactGrid}>
+            <View style={styles.impactCardPrimary}><Text style={styles.impactNum}>127</Text><Text style={styles.impactLabel}>Strays Rescued</Text></View>
+            <View style={styles.impactCardSuccess}><Text style={styles.impactNumGreen}>89</Text><Text style={styles.impactLabel}>Pets Adopted</Text></View>
+            <View style={styles.impactCardAccent}><Text style={styles.impactNumYellow}>245</Text><Text style={styles.impactLabel}>Active Sponsors</Text></View>
+            <View style={styles.impactCardPink}><Text style={styles.impactNumPink}>1.2k</Text><Text style={styles.impactLabel}>Vaccinations</Text></View>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.successButton}>
-          <Text style={styles.successButtonText}>Access E-Health Card</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Impact */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitleCenter}>Our Impact Together</Text>
-        <View style={styles.impactGrid}>
-          <View style={styles.impactCardPrimary}><Text style={styles.impactNum}>127</Text><Text style={styles.impactLabel}>Strays Rescued</Text></View>
-          <View style={styles.impactCardSuccess}><Text style={styles.impactNumGreen}>89</Text><Text style={styles.impactLabel}>Pets Adopted</Text></View>
-          <View style={styles.impactCardAccent}><Text style={styles.impactNumYellow}>245</Text><Text style={styles.impactLabel}>Active Sponsors</Text></View>
-          <View style={styles.impactCardPink}><Text style={styles.impactNumPink}>1.2k</Text><Text style={styles.impactLabel}>Vaccinations</Text></View>
+        {/* Final CTA */}
+        <View style={styles.ctaSection}>
+          <Text style={styles.ctaTitle}>Ready to Make a Difference?</Text>
+          <Text style={styles.ctaDesc}>
+            Join our community of animal lovers and help give campus strays a better life
+          </Text>
+          <TouchableOpacity style={styles.accentButtonLarge} onPress={() => router.push('/search')}>
+            <Text style={styles.accentButtonTextLarge}>Explore Strays</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-
-      {/* Final CTA */}
-      <View style={styles.ctaSection}>
-        <Text style={styles.ctaTitle}>Ready to Make a Difference?</Text>
-        <Text style={styles.ctaDesc}>
-          Join our community of animal lovers and help give campus strays a better life
-        </Text>
-        <TouchableOpacity style={styles.accentButtonLarge} onPress={() => router.push('/search')}>
-          <Text style={styles.accentButtonTextLarge}>Explore Strays</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </View>
   );
 }

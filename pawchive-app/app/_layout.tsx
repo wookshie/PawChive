@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -14,57 +14,59 @@ export default function RootLayout() {
   const segments = useSegments();
 
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const isMounted = useRef(false); // ← Prevents state updates during first render
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    isMounted.current = true;
-
-    // Load initial session asynchronously
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (isMounted.current) {
-          setSession(session);
-          setLoading(false);
+        // Load initial session
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error('Error loading initial session:', error);
+        } else {
+          console.log('Initial session loaded:', initialSession ? 'Logged in' : 'Not logged in');
+          setSession(initialSession);
         }
       } catch (err) {
-        console.error('Session load error:', err);
-        if (isMounted.current) setLoading(false);
+        console.error('Unexpected error during session load:', err);
+      } finally {
+        setIsReady(true);
       }
     };
 
     initializeAuth();
 
-    // Auth change listener (only updates after mount)
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (isMounted.current) {
-        setSession(newSession);
-        setLoading(false);
-      }
+    // Listen for auth state changes (login, logout, etc.)
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      console.log('Auth state changed:', newSession ? 'Logged in' : 'Logged out');
+      setSession(newSession);
     });
 
     return () => {
-      isMounted.current = false;
-      listener.subscription.unsubscribe();
+      authListener.subscription.unsubscribe();
     };
   }, []);
 
+  // Perform redirect only after auth is ready
   useEffect(() => {
-    if (loading) return;
+    if (!isReady) return;
 
     const inAuthGroup = segments[0] === '(auth)';
     const inTabsGroup = segments[0] === '(tabs)';
 
     if (session && !inTabsGroup) {
+      console.log('Redirecting to tabs (user logged in)');
       router.replace('/(tabs)');
     } else if (!session && !inAuthGroup) {
+      console.log('Redirecting to landing (no session)');
       router.replace('/(auth)/landing');
     }
-  }, [session, loading, segments, router]);
+  }, [session, isReady, segments, router]);
 
-  if (loading) {
-    return null; // Prevent any flash
+  // Show nothing until auth decision is made (prevents flash of wrong screen)
+  if (!isReady) {
+    return null; // Or replace with a <SplashScreen /> component
   }
 
   return (

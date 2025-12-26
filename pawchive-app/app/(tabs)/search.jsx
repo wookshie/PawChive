@@ -8,9 +8,8 @@ import {
   StyleSheet,
   FlatList,
   Image,
-  Platform, 
-  StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -90,7 +89,6 @@ export default function SearchScreen() {
     );
   };
 
-  // Filter strays based on search and filter
   const filteredStrays = strays.filter(stray => {
     const matchesSearch = stray.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           stray.location.toLowerCase().includes(searchQuery.toLowerCase());
@@ -110,7 +108,6 @@ export default function SearchScreen() {
       onPress={() => router.push(`/stray/${item.id}`)}
       activeOpacity={0.9}
     >
-      {/* Image Container */}
       <View style={styles.imageContainer}>
         <Image source={item.image} style={styles.strayImage} resizeMode="cover" />
         <TouchableOpacity
@@ -128,7 +125,6 @@ export default function SearchScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Info */}
       <View style={styles.strayInfo}>
         <View style={styles.nameRow}>
           <Text style={styles.strayName}>{item.name}</Text>
@@ -151,7 +147,10 @@ export default function SearchScreen() {
   );
 
   return (
-    <View style={styles.safeContainer}>
+    <SafeAreaView 
+      style={styles.container} 
+      edges={['top', 'left', 'right']} 
+    >
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>🐶 Meet Our Campus Strays</Text>
@@ -201,7 +200,7 @@ export default function SearchScreen() {
         columnWrapperStyle={styles.gridRow}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -224,13 +223,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginBottom: 20,
-  },
-  safeContainer: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-    // Android: Get exact height of status bar + 10px buffer
-    // iOS: Hardcode ~50px (covers notches and dynamic islands)
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -274,7 +266,6 @@ const styles = StyleSheet.create({
   activeFilterText: {
     color: '#fff',
   },
-
   grid: {
     paddingHorizontal: 12,
     paddingBottom: 20,
