@@ -1,3 +1,4 @@
+// app/(auth)/signup.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -11,6 +12,7 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context'; // ← Modern safe area
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { CheckBox } from 'react-native-elements';
@@ -30,7 +32,6 @@ export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
-    // Validation
     if (formData.name.trim().length < 2) {
       Alert.alert('Error', 'Name must be at least 2 characters');
       return;
@@ -88,13 +89,17 @@ export default function SignupScreen() {
   };
 
   return (
-    <View style={styles.safeContainer}>
+    <SafeAreaView 
+      style={styles.container} 
+      edges={['top', 'left', 'right']} // ← Applies safe insets only where needed
+    >
+      <StatusBar style="auto" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Back Button */}
+          {/* Back Button - now has automatic top padding from SafeAreaView */}
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -199,24 +204,24 @@ export default function SignupScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeContainer: {
+  container: {
     flex: 1,
     backgroundColor: '#f0f9ff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 20, // ← Small internal top padding for content
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 8, // ← Small extra top margin for breathing room
     marginBottom: 12,
   },
   backText: {

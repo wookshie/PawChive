@@ -18,7 +18,7 @@ export default function AuthLayout() {
   }, [user, loading]);
 
   if (loading) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (

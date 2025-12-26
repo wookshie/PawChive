@@ -1,3 +1,4 @@
+// app/(auth)/login.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -11,6 +12,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context'; // ← Modern import
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
@@ -41,6 +43,7 @@ export default function LoginScreen() {
         return;
       }
 
+      // No extra alert needed — root layout will redirect automatically
     } catch (err) {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
@@ -49,13 +52,14 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.safeContainer}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <StatusBar style="auto" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Back Button */}
+          {/* Back Button - now automatically padded by SafeAreaView */}
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -127,24 +131,24 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeContainer: {
+  container: {
     flex: 1,
     backgroundColor: '#f0f9ff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 20, // Small internal top padding for content
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 8, // ← Small extra top margin for breathing room
     marginBottom: 32,
   },
   backText: {
