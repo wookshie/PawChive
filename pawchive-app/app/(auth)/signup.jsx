@@ -9,12 +9,13 @@ import {
   ScrollView,
   Alert,
   Platform,
-  StatusBar,
   KeyboardAvoidingView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { CheckBox } from 'react-native-elements';
+import { StatusBar } from 'expo-status-bar';
+import { supabase } from '@/utils/supabase';
 
 export default function SignupScreen() {
   const router = useRouter();
@@ -29,13 +30,13 @@ export default function SignupScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
-    // Basic validation
-    if (formData.name.length < 2) {
+    // Validation
+    if (formData.name.trim().length < 2) {
       Alert.alert('Error', 'Name must be at least 2 characters');
       return;
     }
     if (!formData.email.includes('@')) {
-      Alert.alert('Error', 'Invalid email address');
+      Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
     if (formData.password.length < 6) {
@@ -54,16 +55,33 @@ export default function SignupScreen() {
     setLoading(true);
 
     try {
-      // TODO: Replace with real Supabase or auth provider
-      // await supabase.auth.signUp({ ... })
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name.trim(),
+          },
+        },
+      });
 
-      // Mock success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (error) {
+        Alert.alert('Signup Failed', error.message);
+        return;
+      }
 
-      Alert.alert('Success', 'Account created! Please check your email.');
-      router.replace('/(auth)/login'); // Or directly to tabs if confirmed
-    } catch (error) {
-      Alert.alert('Error', 'An unexpected error occurred');
+      Alert.alert(
+        'Success!',
+        'Account created! Please check your email to verify your account.',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(auth)/login'),
+          },
+        ]
+      );
+    } catch (err) {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -187,11 +205,9 @@ export default function SignupScreen() {
 
 const styles = StyleSheet.create({
   safeContainer: {
-      flex: 1,
-      backgroundColor: '#f0f9ff',
-      // Android: Get exact height of status bar + 10px buffer
-      // iOS: Hardcode ~50px (covers notches and dynamic islands)
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
+    flex: 1,
+    backgroundColor: '#f0f9ff',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
   scrollContent: {
     flexGrow: 1,
@@ -212,11 +228,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  logoContainer: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignSelf: 'center', marginBottom: 16 },
-  logoImage: { width: 60, height: 60, borderWidth: 2, borderColor: '#57AFDB', alignSelf: 'center', borderRadius: 30 },
-
-  logoEmoji: {
-    fontSize: 48,
+  logoContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  logoImage: {
+    width: 60,
+    height: 60,
+    borderWidth: 2,
+    borderColor: '#57AFDB',
+    alignSelf: 'center',
+    borderRadius: 30,
   },
   title: {
     fontSize: 32,

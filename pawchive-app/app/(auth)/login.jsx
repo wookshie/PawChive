@@ -9,11 +9,12 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  StatusBar,
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { StatusBar } from 'expo-status-bar';
+import { supabase } from '@/utils/supabase';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -22,27 +23,26 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    // Basic validation
-    if (!email.includes('@') || password.length < 6) {
-      Alert.alert('Error', 'Please enter a valid email and password (min 6 characters)');
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in both email and password');
       return;
     }
 
     setLoading(true);
 
-    // TODO: Replace with real Supabase or your auth provider later
     try {
-      // Mock successful login
-      // const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      // if (error) throw error;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
 
-      // Mock success
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network
+      if (error) {
+        Alert.alert('Login Failed', error.message);
+        return;
+      }
 
-      Alert.alert('Success', 'Welcome back!');
-      router.replace('/(tabs)'); // Redirect to main tabs
-    } catch (error) {
-      Alert.alert('Login Failed', 'Invalid email or password');
+    } catch (err) {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -135,8 +135,6 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: '#f0f9ff',
-    // Android: Get exact height of status bar + 10px buffer
-    // iOS: Hardcode ~50px (covers notches and dynamic islands)
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
   scrollContent: {
@@ -158,11 +156,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  logoContainer: { width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignSelf: 'center', marginBottom: 16 },
-  logoImage: { width: 60, height: 60, borderWidth: 2, borderColor: '#57AFDB', alignSelf: 'center', borderRadius: 30 },
-
-  logoEmoji: {
-    fontSize: 32,
+  logoContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  logoImage: {
+    width: 60,
+    height: 60,
+    borderWidth: 2,
+    borderColor: '#57AFDB',
+    alignSelf: 'center',
+    borderRadius: 30,
   },
   title: {
     fontSize: 32,
