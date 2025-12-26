@@ -1,34 +1,51 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/utils/supabase';
+import { Session } from '@supabase/supabase-js';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
   const segments = useSegments();
 
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMounted = useRef(false); // ← Prevents state updates during first render
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    isMounted.current = true;
 
-    // Listen for auth changes (login, signup, logout)
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
+    // Load initial session asynchronously
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (isMounted.current) {
+          setSession(session);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Session load error:', err);
+        if (isMounted.current) setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    // Auth change listener (only updates after mount)
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (isMounted.current) {
+        setSession(newSession);
+        setLoading(false);
+      }
     });
 
     return () => {
+      isMounted.current = false;
       listener.subscription.unsubscribe();
     };
   }, []);
@@ -40,22 +57,18 @@ export default function RootLayout() {
     const inTabsGroup = segments[0] === '(tabs)';
 
     if (session && !inTabsGroup) {
-      // Logged in → go to main app
       router.replace('/(tabs)');
     } else if (!session && !inAuthGroup) {
-      // Not logged in → go to landing
       router.replace('/(auth)/landing');
     }
   }, [session, loading, segments, router]);
 
-  // Show nothing while checking session (prevents flash)
   if (loading) {
-    return null;
+    return null; // Prevent any flash
   }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      {/* ← Slot renders the correct group ((auth) or (tabs)) */}
       <Slot />
       <StatusBar style="auto" />
     </ThemeProvider>

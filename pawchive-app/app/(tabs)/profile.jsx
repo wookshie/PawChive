@@ -1,35 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
+  SafeAreaView,
   StyleSheet,
   Modal,
   TextInput,
   Alert,
   Platform,
-  StatusBar
+  StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { supabase } from '@/utils/supabase'; // Your Supabase client
 
 export default function ProfileScreen() {
   const router = useRouter();
 
-  // Mock user data
-  const user = {
-    email: 'test@student.edu',
-    created_at: '2024-01-15',
-  };
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
-  // Editable state
-  const [name, setName] = useState(user.email.split('@')[0]);
-  const [email, setEmail] = useState(user.email);
+  // Editable profile fields
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [editModalVisible, setEditModalVisible] = useState(false);
 
+  // Mock stats & activity (replace with real data later)
   const stats = [
     { label: 'Strays Helped', value: '12', color: '#F44336', icon: 'heart' },
     { label: 'Adoptions', value: '3', color: '#4CAF50', icon: 'checkmark-circle' },
@@ -43,11 +45,27 @@ export default function ProfileScreen() {
     { action: 'Donated pet food', date: 'Sept 5, 2024', icon: 'fast-food', color: '#FF9800' },
   ];
 
-  const saveProfile = () => {
+  // Load user data from Supabase session on mount
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        setName(session.user.user_metadata?.full_name || session.user.email.split('@')[0]);
+        setEmail(session.user.email || '');
+      }
+      setLoading(false);
+    };
+    loadUser();
+  }, []);
+
+  const saveProfile = async () => {
     if (password && password !== confirmPassword) {
       Alert.alert('Error', "Passwords don't match!");
       return;
     }
+
+    // TODO: In real app, update user profile via Supabase
     Alert.alert('Success', 'Profile updated successfully!');
     setEditModalVisible(false);
   };
@@ -61,17 +79,36 @@ export default function ProfileScreen() {
         {
           text: 'Logout',
           style: 'destructive',
-          onPress: () => {
-            // In real app: await supabase.auth.signOut();
-            router.replace('/(auth)/landing'); // Redirect to landing page
+          onPress: async () => {
+            setLogoutLoading(true);
+            try {
+              const { error } = await supabase.auth.signOut();
+              if (error) throw error;
+
+              // Clear local state and redirect
+              setUser(null);
+              router.replace('/(auth)/landing');
+            } catch (err) {
+              Alert.alert('Logout Failed', err.message || 'Something went wrong');
+            } finally {
+              setLogoutLoading(false);
+            }
           },
         },
       ]
     );
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#57AFDB" />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.safeContainer}>
+    <SafeAreaView style={styles.safeContainer}>
       <ScrollView style={styles.scrollView}>
         {/* Header */}
         <View style={styles.header}>
@@ -82,7 +119,9 @@ export default function ProfileScreen() {
         <View style={styles.profileCard}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{name.substring(0, 2).toUpperCase()}</Text>
+              <Text style={styles.avatarText}>
+                {name.substring(0, 2).toUpperCase()}
+              </Text>
             </View>
           </View>
 
@@ -154,10 +193,19 @@ export default function ProfileScreen() {
             <Text style={styles.settingText}>Preferences</Text>
           </TouchableOpacity>
 
-          {/* LOGOUT BUTTON - NOW WORKS! */}
-          <TouchableOpacity style={styles.logoutItem} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="#F44336" />
-            <Text style={styles.logoutText}>Logout</Text>
+          <TouchableOpacity
+            style={styles.logoutItem}
+            onPress={handleLogout}
+            disabled={logoutLoading}
+          >
+            {logoutLoading ? (
+              <ActivityIndicator size="small" color="#F44336" />
+            ) : (
+              <>
+                <Ionicons name="log-out-outline" size={24} color="#F44336" />
+                <Text style={styles.logoutText}>Logout</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -215,20 +263,17 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f0f9ff' },
-  scrollView: { flex: 1 },
   safeContainer: {
-      flex: 1,
-      backgroundColor: '#f8f9fa',
-      // Android: Get exact height of status bar + 10px buffer
-      // iOS: Hardcode ~50px (covers notches and dynamic islands)
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
+    flex: 1,
+    backgroundColor: '#f0f9ff',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
+  scrollView: { flex: 1 },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -282,14 +327,21 @@ const styles = StyleSheet.create({
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   memberSince: { fontSize: 14, color: '#888' },
 
-  statsGrid: { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 20, marginBottom: 20 },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
   statCard: {
     backgroundColor: '#fff',
     padding: 16,
     borderRadius: 16,
     alignItems: 'center',
     width: '30%',
+    shadowColor: '#000',
     shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 4,
   },
   statValue: { fontSize: 28, fontWeight: 'bold', color: '#333', marginVertical: 8 },
@@ -301,12 +353,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 16,
     padding: 20,
+    shadowColor: '#000',
     shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 4,
   },
   activityTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: '#333' },
-  activityItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderColor: '#eee' },
-  activityIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+  },
+  activityIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
   activityText: { flex: 1 },
   activityAction: { fontSize: 15, fontWeight: '600', color: '#333' },
   activityDate: { fontSize: 13, color: '#888', marginTop: 4 },
@@ -317,7 +384,9 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     borderRadius: 16,
     padding: 20,
+    shadowColor: '#000',
     shadowOpacity: 0.08,
+    shadowRadius: 8,
     elevation: 4,
   },
   settingsTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: '#333' },

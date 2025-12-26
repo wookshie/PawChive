@@ -71,7 +71,7 @@ export default function HomeScreen() {
           </View>
         ))}
 
-        <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/seacrh')}>
+        <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/search')}>
           <Text style={styles.accentButtonText}>Browse Strays</Text>
         </TouchableOpacity>
       </View>
