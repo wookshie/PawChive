@@ -6,16 +6,22 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView
+  SafeAreaView,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { STRAYS } from '../../constants/strays';
+import AdoptDrawer from '@/components/adopt';
+import SponsorDrawer from '@/components/sponsor';
 
 export default function StrayDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [isFavorited, setIsFavorited] = useState(false);
+
+  // Drawer states
+  const [showAdoptDrawer, setShowAdoptDrawer] = useState(false);
+  const [showSponsorDrawer, setShowSponsorDrawer] = useState(false);
 
   if (!id) {
     return (
@@ -36,109 +42,136 @@ export default function StrayDetail() {
   }
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Hero */}
-      <View style={styles.hero}>
-        <Image source={stray.image} style={styles.heroImage} resizeMode="cover" />
+        {/* Hero */}
+        <View style={styles.hero}>
+          <Image source={stray.image} style={styles.heroImage} resizeMode="cover" />
 
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-
-        <View style={styles.topActions}>
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => setIsFavorited(!isFavorited)}
-          >
-            <Ionicons
-              name={isFavorited ? 'heart' : 'heart-outline'}
-              size={24}
-              color={isFavorited ? '#FF4444' : '#fff'}
-            />
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
-            <Ionicons name="share-outline" size={24} color="#fff" />
-          </TouchableOpacity>
+
+          <View style={styles.topActions}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={() => setIsFavorited(!isFavorited)}
+            >
+              <Ionicons
+                name={isFavorited ? 'heart' : 'heart-outline'}
+                size={24}
+                color={isFavorited ? '#FF4444' : '#fff'}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn}>
+              <Ionicons name="share-outline" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.card}>
-          <View style={styles.nameHeader}>
-            <View>
-              <Text style={styles.name}>{stray.name}</Text>
-              <Text style={styles.breed}>{stray.breed}</Text>
+        <ScrollView style={styles.content}>
+          <View style={styles.card}>
+            <View style={styles.nameHeader}>
+              <View>
+                <Text style={styles.name}>{stray.name}</Text>
+                <Text style={styles.breed}>{stray.breed}</Text>
+              </View>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>Available</Text>
+              </View>
             </View>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>Available</Text>
+
+            <View style={styles.infoGrid}>
+              {[
+                ['Gender', stray.gender],
+                ['Age', stray.age],
+                ['Weight', stray.weight],
+                ['Rescue Date', stray.rescueDate],
+              ].map(([label, value]) => (
+                <View key={label} style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>{label}</Text>
+                  <Text style={styles.infoValue}>{value}</Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.locationRow}>
+              <MaterialIcons name="location-on" size={18} color="#FF6B6B" />
+              <Text style={styles.locationText}>{stray.location}</Text>
             </View>
           </View>
 
-          <View style={styles.infoGrid}>
-            {[
-              ['Gender', stray.gender],
-              ['Age', stray.age],
-              ['Weight', stray.weight],
-              ['Rescue Date', stray.rescueDate],
-            ].map(([label, value]) => (
-              <View key={label} style={styles.infoItem}>
-                <Text style={styles.infoLabel}>{label}</Text>
-                <Text style={styles.infoValue}>{value}</Text>
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>About {stray.name}</Text>
+            <Text style={styles.bio}>{stray.bio}</Text>
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.healthHeader}>
+              <MaterialIcons name="favorite" size={24} color="#FF6B6B" />
+              <Text style={styles.sectionTitle}>Health Summary</Text>
+            </View>
+
+            {stray.vaccinations.map((v, i) => (
+              <View key={i} style={styles.vaccinationItem}>
+                <View>
+                  <Text style={styles.vaxName}>{v.name}</Text>
+                  <Text style={styles.vaxDate}>{v.date}</Text>
+                </View>
+                <View
+                  style={[
+                    styles.vaxBadge,
+                    v.status === 'Completed' ? styles.completed : styles.scheduled,
+                  ]}
+                >
+                  <Text style={styles.vaxBadgeText}>{v.status}</Text>
+                </View>
               </View>
             ))}
           </View>
+        </ScrollView>
 
-          <View style={styles.locationRow}>
-            <MaterialIcons name="location-on" size={18} color="#FF6B6B" />
-            <Text style={styles.locationText}>{stray.location}</Text>
-          </View>
+        <View style={styles.bottomActions}>
+          <TouchableOpacity 
+            style={styles.adoptBtn} 
+            onPress={() => setShowAdoptDrawer(true)}
+          >
+            <Text style={styles.adoptText}>Adopt {stray.name}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.sponsorBtn}
+            onPress={() => setShowSponsorDrawer(true)} // ← Opens Sponsor Drawer
+          >
+            <Text style={styles.sponsorText}>Sponsor</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>About {stray.name}</Text>
-          <Text style={styles.bio}>{stray.bio}</Text>
-        </View>
+        {/* Adoption Drawer */}
+        <AdoptDrawer
+          isVisible={showAdoptDrawer}
+          onClose={() => setShowAdoptDrawer(false)}
+          strayName={stray.name}
+        />
 
-        <View style={styles.card}>
-          <View style={styles.healthHeader}>
-            <MaterialIcons name="favorite" size={24} color="#FF6B6B" />
-            <Text style={styles.sectionTitle}>Health Summary</Text>
-          </View>
-
-          {stray.vaccinations.map((v, i) => (
-            <View key={i} style={styles.vaccinationItem}>
-              <View>
-                <Text style={styles.vaxName}>{v.name}</Text>
-                <Text style={styles.vaxDate}>{v.date}</Text>
-              </View>
-              <View
-                style={[
-                  styles.vaxBadge,
-                  v.status === 'Completed' ? styles.completed : styles.scheduled,
-                ]}
-              >
-                <Text style={styles.vaxBadgeText}>{v.status}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-
-      <View style={styles.bottomActions}>
-        <TouchableOpacity style={styles.adoptBtn}>
-          <Text style={styles.adoptText}>Adopt {stray.name}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.sponsorBtn}>
-          <Text style={styles.sponsorText}>Sponsor</Text>
-        </TouchableOpacity>
+        {/* Sponsor Drawer */}
+        <SponsorDrawer
+          isVisible={showSponsorDrawer}
+          onClose={() => setShowSponsorDrawer(false)}
+          strayName={stray.name}
+        />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: { flex: 1, backgroundColor: '#fff' },
   hero: { height: 360, position: 'relative' },
   heroImage: { width: '100%', height: '100%' },
