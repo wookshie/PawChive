@@ -6,23 +6,39 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
+  SafeAreaView
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { STRAYS } from '../../constants/strays';
 
 export default function StrayDetail() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [isFavorited, setIsFavorited] = useState(false);
 
-  // Find the correct stray by id
-  const stray = STRAYS.find(s => s.id === Number(id)) || STRAYS[0];
+  if (!id) {
+    return (
+      <View style={styles.container}>
+        <Text>Invalid stray ID</Text>
+      </View>
+    );
+  }
+
+  const stray = STRAYS.find(s => s.id === Number(id));
+
+  if (!stray) {
+    return (
+      <View style={styles.container}>
+        <Text>Stray not found</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
+
       {/* Hero */}
       <View style={styles.hero}>
         <Image source={stray.image} style={styles.heroImage} resizeMode="cover" />
@@ -126,15 +142,46 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   hero: { height: 360, position: 'relative' },
   heroImage: { width: '100%', height: '100%' },
-  backBtn: { position: 'absolute', top: 50, left: 20, backgroundColor: 'rgba(0,0,0,0.5)', padding: 12, borderRadius: 30 },
+  backBtn: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 12,
+    borderRadius: 30,
+  },
   topActions: { position: 'absolute', top: 50, right: 20, gap: 12 },
-  actionBtn: { backgroundColor: 'rgba(0,0,0,0.5)', padding: 12, borderRadius: 30 },
+  actionBtn: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 12,
+    borderRadius: 30,
+  },
   content: { flex: 1, paddingHorizontal: 20, marginTop: -40 },
-  card: { backgroundColor: '#fff', borderRadius: 20, padding: 20, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 8 },
-  nameHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  nameHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
   name: { fontSize: 32, fontWeight: 'bold' },
   breed: { fontSize: 16, color: '#666', marginTop: 4 },
-  badge: { backgroundColor: '#4CAF50', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
+  badge: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
   badgeText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
   infoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginBottom: 16 },
   infoItem: { width: '45%' },
@@ -144,17 +191,46 @@ const styles = StyleSheet.create({
   locationText: { marginLeft: 8, fontSize: 15, fontWeight: '600' },
   sectionTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 12 },
   bio: { fontSize: 15, lineHeight: 22, color: '#444' },
-  healthHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 16 },
-  vaccinationItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9f9f9', padding: 14, borderRadius: 12, marginBottom: 10 },
+  healthHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 16,
+  },
+  vaccinationItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
   vaxName: { fontWeight: '600' },
   vaxDate: { fontSize: 12, color: '#666', marginTop: 4 },
   vaxBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
   completed: { backgroundColor: '#4CAF50' },
   scheduled: { backgroundColor: '#FF9800' },
   vaxBadgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  bottomActions: { padding: 20, backgroundColor: '#fff', borderTopWidth: 1, borderColor: '#eee', gap: 12 },
-  adoptBtn: { backgroundColor: '#4CAF50', padding: 18, borderRadius: 30, alignItems: 'center' },
+  bottomActions: {
+    padding: 20,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderColor: '#eee',
+    gap: 12,
+  },
+  adoptBtn: {
+    backgroundColor: '#4CAF50',
+    padding: 18,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
   adoptText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
-  sponsorBtn: { backgroundColor: '#FFB800', padding: 16, borderRadius: 30, alignItems: 'center' },
+  sponsorBtn: {
+    backgroundColor: '#FFB800',
+    padding: 16,
+    borderRadius: 30,
+    alignItems: 'center',
+  },
   sponsorText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });

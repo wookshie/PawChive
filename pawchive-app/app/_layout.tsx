@@ -54,14 +54,14 @@ export default function RootLayout() {
 
     const inAuthGroup = segments[0] === '(auth)';
     const inTabsGroup = segments[0] === '(tabs)';
+    const inStrayRoute = segments[0] === 'stray';
 
-    if (session && !inTabsGroup) {
-      console.log('Redirecting to tabs (user logged in)');
+    if (session && !(inTabsGroup || inStrayRoute)) {
       router.replace('/(tabs)');
     } else if (!session && !inAuthGroup) {
-      console.log('Redirecting to landing (no session)');
       router.replace('/(auth)/landing');
     }
+
   }, [session, isReady, segments, router]);
 
   // Show nothing until auth decision is made (prevents flash of wrong screen)

@@ -105,7 +105,10 @@ export default function SearchScreen() {
   const renderStray = ({ item }) => (
     <TouchableOpacity
       style={styles.strayCard}
-      onPress={() => router.push(`/stray/${item.id}`)}
+      onPress={() => {
+        console.log(`Navigating to stray/${item.id}`);
+        router.push(`/stray/${item.id}`);
+      }}
       activeOpacity={0.9}
     >
       <View style={styles.imageContainer}>
