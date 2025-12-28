@@ -13,7 +13,7 @@ export const STRAYS = [
     vaccinations: [
       { name: "Anti-Rabies", date: "Sept 15, 2025", status: "Completed" },
       { name: "Distemper", date: "Aug 20, 2025", status: "Completed" },
-      { name: "Parvovirus", date: "Dec 1, 2025", status: "Scheduled" },
+      { name: "Parvovirus", date: "Jan 15, 2026", status: "Scheduled" },
     ],
   },
   {
@@ -30,6 +30,7 @@ export const STRAYS = [
     vaccinations: [
       { name: "FVRCP", date: "Oct 10, 2025", status: "Completed" },
       { name: "Rabies", date: "Oct 10, 2025", status: "Completed" },
+      { name: "Deworming", date: "Feb 20, 2026", status: "Scheduled" },
     ],
   },
   {
@@ -97,6 +98,7 @@ export const STRAYS = [
     vaccinations: [
       { name: "FVRCP", date: "Dec 5, 2025", status: "Completed" },
       { name: "Rabies", date: "Dec 5, 2025", status: "Completed" },
+      { name: "Deworming", date: "Feb 10, 2026", status: "Scheduled" },
     ],
   },
 ];

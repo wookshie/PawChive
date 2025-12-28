@@ -1,3 +1,4 @@
+// app/stray/[id].tsx
 import React, { useState } from 'react';
 import {
   ScrollView,
@@ -13,15 +14,15 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { STRAYS } from '../../constants/strays';
 import AdoptDrawer from '@/components/adopt';
 import SponsorDrawer from '@/components/sponsor';
+import HealthCardDrawer from '@/components/healthCard'; // ← Make sure this import is correct
 
 export default function StrayDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams();
   const router = useRouter();
   const [isFavorited, setIsFavorited] = useState(false);
-
-  // Drawer states
   const [showAdoptDrawer, setShowAdoptDrawer] = useState(false);
   const [showSponsorDrawer, setShowSponsorDrawer] = useState(false);
+  const [showHealthCard, setShowHealthCard] = useState(false);
 
   if (!id) {
     return (
@@ -40,6 +41,9 @@ export default function StrayDetail() {
       </View>
     );
   }
+
+  const completedVaccinations = stray.vaccinations.filter(v => v.status === "Completed").length;
+  const totalVaccinations = stray.vaccinations.length;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -72,6 +76,7 @@ export default function StrayDetail() {
         </View>
 
         <ScrollView style={styles.content}>
+          {/* Basic Info Card */}
           <View style={styles.card}>
             <View style={styles.nameHeader}>
               <View>
@@ -103,36 +108,42 @@ export default function StrayDetail() {
             </View>
           </View>
 
+          {/* About Card */}
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>About {stray.name}</Text>
             <Text style={styles.bio}>{stray.bio}</Text>
           </View>
 
-          <View style={styles.card}>
+          {/* Health Summary Card */}
+          <View style={styles.healthCard}>
             <View style={styles.healthHeader}>
-              <MaterialIcons name="favorite" size={24} color="#FF6B6B" />
-              <Text style={styles.sectionTitle}>Health Summary</Text>
+              <Text style={styles.healthTitle}>Health Summary     </Text>
+              <TouchableOpacity 
+                style={styles.healthCardButton}
+                onPress={() => setShowHealthCard(true)}
+              >
+                <Text style={styles.healthCardButtonText}>e-Health Card</Text>
+              </TouchableOpacity>
             </View>
 
             {stray.vaccinations.map((v, i) => (
-              <View key={i} style={styles.vaccinationItem}>
-                <View>
+              <View key={i} style={styles.vaccinationRow}>
+                <View style={styles.vaccinationInfo}>
                   <Text style={styles.vaxName}>{v.name}</Text>
                   <Text style={styles.vaxDate}>{v.date}</Text>
                 </View>
-                <View
-                  style={[
-                    styles.vaxBadge,
-                    v.status === 'Completed' ? styles.completed : styles.scheduled,
-                  ]}
-                >
-                  <Text style={styles.vaxBadgeText}>{v.status}</Text>
+                <View style={[
+                  styles.statusBadge,
+                  v.status === 'Completed' ? styles.completedBadge : styles.scheduledBadge
+                ]}>
+                  <Text style={styles.statusText}>{v.status}</Text>
                 </View>
               </View>
             ))}
           </View>
         </ScrollView>
 
+        {/* Bottom Actions */}
         <View style={styles.bottomActions}>
           <TouchableOpacity 
             style={styles.adoptBtn} 
@@ -143,7 +154,7 @@ export default function StrayDetail() {
 
           <TouchableOpacity 
             style={styles.sponsorBtn}
-            onPress={() => setShowSponsorDrawer(true)} // ← Opens Sponsor Drawer
+            onPress={() => setShowSponsorDrawer(true)}
           >
             <Text style={styles.sponsorText}>Sponsor</Text>
           </TouchableOpacity>
@@ -161,6 +172,13 @@ export default function StrayDetail() {
           isVisible={showSponsorDrawer}
           onClose={() => setShowSponsorDrawer(false)}
           strayName={stray.name}
+        />
+
+        {/* Health Card Drawer */}
+        <HealthCardDrawer
+          isVisible={showHealthCard}
+          onClose={() => setShowHealthCard(false)}
+          stray={stray}
         />
       </View>
     </SafeAreaView>
@@ -224,6 +242,17 @@ const styles = StyleSheet.create({
   locationText: { marginLeft: 8, fontSize: 15, fontWeight: '600' },
   sectionTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 12 },
   bio: { fontSize: 15, lineHeight: 22, color: '#444' },
+  healthCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
   healthHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -245,12 +274,41 @@ const styles = StyleSheet.create({
   completed: { backgroundColor: '#4CAF50' },
   scheduled: { backgroundColor: '#FF9800' },
   vaxBadgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  vaccinationRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  vaccinationInfo: { flex: 1 },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  completedBadge: { backgroundColor: '#4CAF50' },
+  scheduledBadge: { backgroundColor: '#FF9800' },
+  statusText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  healthTitle: { fontSize: 20, fontWeight: 'bold' },
   bottomActions: {
     padding: 20,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderColor: '#eee',
     gap: 12,
+  },
+  healthCardButton: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  healthCardButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   adoptBtn: {
     backgroundColor: '#4CAF50',
