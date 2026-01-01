@@ -1,11 +1,12 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createServerClient } from '@/lib/supabase'; // ← Make sure this matches your export in lib/supabase.ts
+import { createServerClient } from '@/lib/supabase';
+import Link from 'next/link';
 
 export default async function NewStrayPage() {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
-  // Optional:
+  // Optional: Uncomment when login is ready
   // const { data: { session } } = await supabase.auth.getSession();
   // if (!session) {
   //   redirect('/login');
@@ -13,7 +14,18 @@ export default async function NewStrayPage() {
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
+      <div className="mb-4">
+        <Link
+          href="/admin/strays"
+          className="text-blue-600 hover:text-blue-800 underline"
+        >
+          ← Back to Strays List
+        </Link>
+      </div>
       <h1 className="text-3xl font-bold mb-8">Add New Stray Pet</h1>
+
+      {/* Error Display (will be shown if action fails) */}
+      <div id="error-message" className="hidden mb-4 p-4 bg-red-100 text-red-700 rounded"></div>
 
       <form action={createStrayAction} className="space-y-6 bg-white p-8 rounded-lg shadow">
         {/* Name */}
@@ -143,57 +155,76 @@ export default async function NewStrayPage() {
 async function createStrayAction(formData: FormData) {
   'use server';
 
-  const supabase = await createServerClient();
+  try {
+    const supabase = await createServerClient();
 
-  const name = formData.get('name') as string;
-  const breed = formData.get('breed') as string;
-  const gender = formData.get('gender') as string;
-  const age = formData.get('age') as string;
-  const weight = formData.get('weight') as string;
-  const location = formData.get('location') as string;
-  const status = formData.get('status') as string;
-  const rescue_date = formData.get('rescue_date') as string;
-  const image = formData.get('image') as File;
-  const bio = formData.get('bio') as string;
+    const name = formData.get('name') as string;
+    const breed = formData.get('breed') as string;
+    const gender = formData.get('gender') as string;
+    const age = formData.get('age') as string;
+    const weight = formData.get('weight') as string;
+    const location = formData.get('location') as string;
+    const status = formData.get('status') as string;
+    const rescue_date = formData.get('rescue_date') as string;
+    const image = formData.get('image') as File;
+    const bio = formData.get('bio') as string;
 
-  let imageUrl = '';
+    console.log('Starting stray creation for:', name);
 
-  // Upload image if provided
-  if (image && image.size > 0) {
-    const fileName = `${Date.now()}-${image.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from('stray-photos')
-      .upload(fileName, image);
+    let imageUrl = '';
 
-    if (uploadError) {
-      throw new Error(uploadError.message);
+    // Upload image if provided and valid
+    if (image && image.size > 0 && image.type.startsWith('image/')) {
+      const fileName = `${Date.now()}-${image.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('stray-photos')
+        .upload(fileName, image);
+
+      if (uploadError) {
+        console.error('Image upload error:', uploadError);
+        throw new Error(`Image upload failed: ${uploadError.message}`);
+      }
+
+      const { data: urlData } = supabase.storage.from('stray-photos').getPublicUrl(fileName);
+      imageUrl = urlData.publicUrl;
+      console.log('Image uploaded:', imageUrl);
     }
 
-    const { data: urlData } = supabase.storage.from('stray-photos').getPublicUrl(fileName);
-    imageUrl = urlData.publicUrl;
+    // Prepare insert data
+    const insertData = {
+      name,
+      breed: breed || null,
+      gender: gender || null,
+      age: age || null,
+      weight: weight || null,
+      location: location || null,
+      status: status || 'Available',
+      rescue_date: rescue_date ? new Date(rescue_date).toISOString() : null,
+      image_url: imageUrl || null,
+      bio: bio || null,
+    };
+
+    console.log('Inserting data:', insertData);
+
+    // Insert to database
+    const { error } = await supabase.from('strays').insert(insertData);
+
+    if (error) {
+      console.error('Insert error:', error);
+      throw new Error(`Database insert failed: ${error.message}`);
+    }
+
+    console.log('Stray created successfully'); // Debug log
+
+    // Force Next.js to re-fetch the list page data on next load
+    revalidatePath('/admin/strays');
+
+    // Redirect back to list
+    redirect('/admin/strays');
+  } catch (error) {
+    console.error('Server action error:', error);
+    // In a real app, you could return an error response or use a library like 'next-safe-action' for better error handling
+    // For now, re-throw to let Next.js handle it (it might show a generic error)
+    throw error;
   }
-
-  // Insert to database
-  const { error } = await supabase.from('strays').insert({
-    name,
-    breed,
-    gender,
-    age,
-    weight,
-    location,
-    status,
-    rescue_date: rescue_date || null,
-    image_url: imageUrl || null,
-    bio,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  // Force Next.js to re-fetch the list page data on next load
-  revalidatePath('/admin/strays', 'page');
-
-  // Redirect back to list
-  redirect('/admin/strays');
 }

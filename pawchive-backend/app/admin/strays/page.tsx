@@ -1,6 +1,8 @@
-// app/admin/strays/page.tsx
 import { createServerClient } from '@/lib/supabase'; // Use the server client
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 
 export default async function StraysAdminPage() {
   const supabase = await createServerClient();
@@ -17,6 +19,9 @@ export default async function StraysAdminPage() {
     .select('id, name, breed, gender, status, location, age')
     .order('created_at', { ascending: false });
 
+    console.log('Strays data:', strays); // Add this
+    console.log('Strays error:', error); // Add this
+
   if (error) {
     return <div className="p-8 text-red-600">Error loading strays: {error.message}</div>;
   }
@@ -26,12 +31,12 @@ export default async function StraysAdminPage() {
       <div className="p-8 text-center">
         <h2 className="text-2xl font-semibold text-gray-700 mb-4">No Strays Found Yet</h2>
         <p className="text-gray-600 mb-6">Start by adding your first campus stray!</p>
-        <a
+        <Link
           href="/admin/strays/new"
           className="inline-block px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition shadow-md"
         >
           + Add Your First Stray
-        </a>
+        </Link>
       </div>
     );
   }
@@ -42,18 +47,12 @@ export default async function StraysAdminPage() {
       <div className="mb-8 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Admin: All Strays</h1>
         <div className="space-x-4">
-          <a
+          <Link
             href="/admin/strays/new"
             className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition shadow-md"
           >
             + Add New Stray
-          </a>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition shadow-md"
-          >
-            Refresh List
-          </button>
+          </Link>
         </div>
       </div>
 
