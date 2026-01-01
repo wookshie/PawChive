@@ -1,6 +1,9 @@
-import { createServerClient } from '@/lib/supabase'; // Use the server client
+// app/admin/strays/page.tsx
+import { createServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { revalidatePath } from 'next/cache';
+import DeleteButton from '@/components/deleteButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +21,6 @@ export default async function StraysAdminPage() {
     .from('strays')
     .select('id, name, breed, gender, status, location, age')
     .order('created_at', { ascending: false });
-
-    console.log('Strays data:', strays); // Add this
-    console.log('Strays error:', error); // Add this
 
   if (error) {
     return <div className="p-8 text-red-600">Error loading strays: {error.message}</div>;
@@ -43,7 +43,7 @@ export default async function StraysAdminPage() {
 
   return (
     <div className="container mx-auto p-8">
-      {/* Add New Stray Button */}
+      {/* Header */}
       <div className="mb-8 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Admin: All Strays</h1>
         <div className="space-x-4">
@@ -53,11 +53,17 @@ export default async function StraysAdminPage() {
           >
             + Add New Stray
           </Link>
+          {/* <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition shadow-md"
+          >
+            Refresh List
+          </button> */}
         </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -68,6 +74,7 @@ export default async function StraysAdminPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -88,6 +95,38 @@ export default async function StraysAdminPage() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{stray.location}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{stray.age}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex space-x-4">
+                    {/* Edit Link */}
+                    <Link
+                      href={`/admin/strays/edit/${stray.id}`}
+                      className="text-indigo-600 hover:text-indigo-900 font-medium"
+                    >
+                      Edit
+                    </Link>
+
+                    {/* Delete Button */}
+                    <DeleteButton
+                      id={stray.id}
+                      name={stray.name}
+                      action={deleteStrayAction}
+                    />
+                    {/* <form action={deleteStrayAction}>
+                      <input type="hidden" name="id" value={stray.id} />
+                      <button
+                        type="submit"
+                        className="text-red-600 hover:text-red-900 font-medium"
+                        onClick={(e) => {
+                          if (!confirm(`Are you sure you want to delete ${stray.name}? This action cannot be undone.`)) {
+                            e.preventDefault();
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </form> */}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -95,4 +134,24 @@ export default async function StraysAdminPage() {
       </div>
     </div>
   );
+}
+
+// Server Action for Delete
+export async function deleteStrayAction(formData: FormData) {
+  'use server';
+
+  const supabase = await createServerClient();
+  const id = formData.get('id') as string;
+
+  const { error } = await supabase.from('strays').delete().eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Revalidate the list page to reflect deletion
+  revalidatePath('/admin/strays');
+
+  // Redirect back to list
+  // redirect('/admin/strays');
 }
