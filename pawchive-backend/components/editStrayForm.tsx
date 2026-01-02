@@ -1,4 +1,3 @@
-// components/editStrayForm.tsx
 'use client';
 
 import { useState } from 'react';
