@@ -1,4 +1,3 @@
-// app/admin/strays/delete/route.ts
 import { createServerClient } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
