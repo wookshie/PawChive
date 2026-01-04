@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 type Stray = {
+  vaccinations: any;
   id: string;
   name: string;
   breed: string;
@@ -165,6 +166,23 @@ export default function EditStrayForm({ stray }: { stray: Stray }) {
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-y"
             placeholder="Describe the stray's personality, history, needs, etc..."
           />
+        </div>
+
+        {/* Vaccinations - JSON input */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Vaccinations (JSON array - optional)
+          </label>
+          <textarea
+            name="vaccinations"
+            rows={6}
+            defaultValue={stray?.vaccinations ? JSON.stringify(stray.vaccinations, null, 2) : '[]'}
+            placeholder='Example:\n[\n  {"name": "Rabies", "date": "2025-03-15", "status": "Completed"},\n  {"name": "Distemper", "date": "2025-01-10", "status": "Completed"}\n]'
+            className="w-full px-4 py-3 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y bg-gray-50"
+          />
+          <p className="mt-2 text-xs text-gray-500">
+            Edit the existing array or leave as [] if none.
+          </p>
         </div>
 
         {/* Message */}

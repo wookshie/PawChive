@@ -1,3 +1,4 @@
+// app/admin/strays/new/page.tsx
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createServerClient } from '@/lib/supabase';
@@ -6,28 +7,21 @@ import Link from 'next/link';
 export default async function NewStrayPage() {
   const supabase = await createServerClient();
 
-  // Optional: Uncomment when login is ready
-  // const { data: { session } } = await supabase.auth.getSession();
-  // if (!session) {
-  //   redirect('/login');
-  // }
-
   return (
     <div className="container mx-auto p-8 max-w-2xl">
-      <div className="mb-4">
+      {/* Back link */}
+      <div className="mb-6">
         <Link
           href="/admin/strays"
-          className="text-blue-600 hover:text-blue-800 underline"
+          className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
         >
           ← Back to Strays List
         </Link>
       </div>
+
       <h1 className="text-3xl font-bold mb-8">Add New Stray Pet</h1>
 
-      {/* Error Display (will be shown if action fails) */}
-      <div id="error-message" className="hidden mb-4 p-4 bg-red-100 text-red-700 rounded"></div>
-
-      <form action={createStrayAction} className="space-y-6 bg-white p-8 rounded-lg shadow">
+      <form action={createStrayAction} className="space-y-6 bg-white p-8 rounded-xl shadow-lg border border-gray-200">
         {/* Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
@@ -35,7 +29,7 @@ export default async function NewStrayPage() {
             type="text"
             name="name"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
@@ -45,7 +39,7 @@ export default async function NewStrayPage() {
           <input
             type="text"
             name="breed"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
@@ -54,7 +48,7 @@ export default async function NewStrayPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
           <select
             name="gender"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
           >
             <option value="">Select...</option>
             <option value="Male">Male</option>
@@ -68,7 +62,7 @@ export default async function NewStrayPage() {
           <input
             type="text"
             name="age"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
@@ -78,7 +72,7 @@ export default async function NewStrayPage() {
           <input
             type="text"
             name="weight"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
@@ -88,7 +82,7 @@ export default async function NewStrayPage() {
           <input
             type="text"
             name="location"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
@@ -98,7 +92,7 @@ export default async function NewStrayPage() {
           <select
             name="status"
             defaultValue="Available"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
           >
             <option value="Available">Available</option>
             <option value="Under Care">Under Care</option>
@@ -112,7 +106,7 @@ export default async function NewStrayPage() {
           <input
             type="date"
             name="rescue_date"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           />
         </div>
 
@@ -123,7 +117,7 @@ export default async function NewStrayPage() {
             type="file"
             name="image"
             accept="image/*"
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
           />
         </div>
 
@@ -133,15 +127,32 @@ export default async function NewStrayPage() {
           <textarea
             name="bio"
             rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y"
           />
+        </div>
+
+        {/* Vaccinations - JSON input */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Vaccinations (JSON array - optional)
+          </label>
+          <textarea
+            name="vaccinations"
+            rows={6}
+            defaultValue="[]"
+            placeholder='Example (copy-paste exactly):\n[\n  {"name": "Rabies", "date": "2025-03-15", "status": "Completed"},\n  {"name": "Distemper", "date": "2025-01-10", "status": "Completed"}\n]'
+            className="w-full px-4 py-3 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y bg-gray-50"
+          />
+          <p className="mt-2 text-xs text-gray-500">
+            Enter a valid JSON array of objects. Leave as [] if none. Must be proper JSON!
+          </p>
         </div>
 
         {/* Submit */}
         <div className="pt-6">
           <button
             type="submit"
-            className="w-full py-3 px-6 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full py-3 px-6 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
           >
             Add New Stray
           </button>
@@ -151,7 +162,7 @@ export default async function NewStrayPage() {
   );
 }
 
-// Server Action - handles form submit on server
+// Server Action - handles form submit
 async function createStrayAction(formData: FormData) {
   'use server';
 
@@ -169,30 +180,36 @@ async function createStrayAction(formData: FormData) {
     const image = formData.get('image') as File;
     const bio = formData.get('bio') as string;
 
-    console.log('Starting stray creation for:', name);
+    // NEW: Read and parse vaccinations JSON
+    const vaccinationsRaw = formData.get('vaccinations') as string;
+    let vaccinations = [];
+    if (vaccinationsRaw && vaccinationsRaw.trim() !== '[]') {
+      try {
+        vaccinations = JSON.parse(vaccinationsRaw);
+        if (!Array.isArray(vaccinations)) {
+          throw new Error('Vaccinations must be a JSON array');
+        }
+      } catch (parseError) {
+        throw new Error('Invalid vaccinations JSON format: ' + (parseError instanceof Error ? parseError.message : String(parseError)));
+      }
+    }
 
     let imageUrl = '';
 
-    // Upload image if provided and valid
     if (image && image.size > 0 && image.type.startsWith('image/')) {
       const fileName = `${Date.now()}-${image.name}`;
       const { error: uploadError } = await supabase.storage
         .from('stray-photos')
         .upload(fileName, image);
 
-      if (uploadError) {
-        console.error('Image upload error:', uploadError);
-        throw new Error(`Image upload failed: ${uploadError.message}`);
-      }
+      if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
 
       const { data: urlData } = supabase.storage.from('stray-photos').getPublicUrl(fileName);
       imageUrl = urlData.publicUrl;
-      console.log('Image uploaded:', imageUrl);
     }
 
-    // Prepare insert data
     const insertData = {
-      name,
+      name: name || null,
       breed: breed || null,
       gender: gender || null,
       age: age || null,
@@ -202,29 +219,17 @@ async function createStrayAction(formData: FormData) {
       rescue_date: rescue_date ? new Date(rescue_date).toISOString() : null,
       image_url: imageUrl || null,
       bio: bio || null,
+      vaccinations, // Now saved!
     };
 
-    console.log('Inserting data:', insertData);
-
-    // Insert to database
     const { error } = await supabase.from('strays').insert(insertData);
 
-    if (error) {
-      console.error('Insert error:', error);
-      throw new Error(`Database insert failed: ${error.message}`);
-    }
+    if (error) throw new Error(`Database insert failed: ${error.message}`);
 
-    console.log('Stray created successfully'); // Debug log
-
-    // Force Next.js to re-fetch the list page data on next load
     revalidatePath('/admin/strays');
-
-    // Redirect back to list
     redirect('/admin/strays');
   } catch (error) {
-    console.error('Server action error:', error);
-    // In a real app, you could return an error response or use a library like 'next-safe-action' for better error handling
-    // For now, re-throw to let Next.js handle it (it might show a generic error)
+    console.error('Create stray error:', error);
     throw error;
   }
 }

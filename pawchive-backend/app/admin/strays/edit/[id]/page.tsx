@@ -1,7 +1,8 @@
+// app/admin/strays/edit/[id]/page.tsx
 import { createServerClient } from '@/lib/supabase';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import EditStrayForm from '@/components/editStrayForm';
+import { revalidatePath } from 'next/cache';
 
 export default async function EditStrayPage({
   params,
@@ -50,16 +51,174 @@ export default async function EditStrayPage({
       </div>
 
       {/* Edit Form */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-        <EditStrayForm stray={stray} />
-      </div>
+      <form action={updateStrayAction} className="space-y-6 bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+        {/* Hidden ID field */}
+        <input type="hidden" name="id" value={stray.id} />
 
-      {/* Optional debug (remove in production) */}
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+          <input
+            type="text"
+            name="name"
+            defaultValue={stray.name}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        {/* Breed */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Breed</label>
+          <input
+            type="text"
+            name="breed"
+            defaultValue={stray.breed || ''}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        {/* Gender */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+          <select
+            name="gender"
+            defaultValue={stray.gender || ''}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
+          >
+            <option value="">Select...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+        </div>
+
+        {/* Age */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Age (e.g. ~2 years)</label>
+          <input
+            type="text"
+            name="age"
+            defaultValue={stray.age || ''}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        {/* Weight */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Weight (e.g. 15 kg)</label>
+          <input
+            type="text"
+            name="weight"
+            defaultValue={stray.weight || ''}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        {/* Location */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+          <input
+            type="text"
+            name="location"
+            defaultValue={stray.location || ''}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select
+            name="status"
+            defaultValue={stray.status || 'Available'}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
+          >
+            <option value="Available">Available</option>
+            <option value="Under Care">Under Care</option>
+            <option value="Adopted">Adopted</option>
+          </select>
+        </div>
+
+        {/* Rescue Date */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Rescue Date</label>
+          <input
+            type="date"
+            name="rescue_date"
+            defaultValue={stray.rescue_date ? new Date(stray.rescue_date).toISOString().split('T')[0] : ''}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          />
+        </div>
+
+        {/* Photo Upload (optional - new photo replaces old) */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">New Photo (optional)</label>
+          <input
+            type="file"
+            name="image"
+            accept="image/*"
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
+          />
+          {stray.image_url && (
+            <p className="mt-2 text-sm text-gray-500">
+              Current photo: <a href={stray.image_url} target="_blank" className="text-blue-600 hover:underline">View</a>
+            </p>
+          )}
+        </div>
+
+        {/* Bio */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Bio (Description)</label>
+          <textarea
+            name="bio"
+            rows={4}
+            defaultValue={stray.bio || ''}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y"
+          />
+        </div>
+
+        {/* Vaccinations - Pre-filled JSON */}
+        <div className="mt-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Vaccinations (JSON array - optional)
+          </label>
+          <textarea
+            name="vaccinations"
+            rows={6}
+            defaultValue={stray.vaccinations ? JSON.stringify(stray.vaccinations, null, 2) : '[]'}
+            placeholder='Example:\n[\n  {"name": "Rabies", "date": "2025-03-15", "status": "Completed"},\n  {"name": "Distemper", "date": "2025-01-10", "status": "Completed"}\n]'
+            className="w-full px-4 py-3 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y bg-gray-50"
+          />
+          <p className="mt-2 text-xs text-gray-500">
+            Edit the existing array or leave as [] if none. Must be valid JSON.
+          </p>
+        </div>
+
+        {/* Submit */}
+        <div className="pt-6 flex space-x-4">
+          <button
+            type="submit"
+            className="flex-1 py-3 px-6 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition"
+          >
+            Save Changes
+          </button>
+          <Link
+            href="/admin/strays"
+            className="flex-1 py-3 px-6 bg-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-400 transition text-center"
+          >
+            Cancel
+          </Link>
+        </div>
+      </form>
+
+      {/* Optional debug (development only) */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="mt-8">
+        <div className="mt-10">
           <details className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <summary className="font-medium cursor-pointer">Debug: Raw Stray Data</summary>
-            <pre className="mt-4 overflow-auto text-sm bg-white p-4 rounded border border-gray-200">
+            <summary className="font-medium cursor-pointer text-gray-700">
+              Debug: Raw Stray Data from Supabase
+            </summary>
+            <pre className="mt-4 overflow-auto text-sm bg-white p-4 rounded border border-gray-200 font-mono">
               {JSON.stringify(stray, null, 2)}
             </pre>
           </details>
@@ -67,4 +226,82 @@ export default async function EditStrayPage({
       )}
     </div>
   );
+}
+
+// Server Action - handles update
+async function updateStrayAction(formData: FormData) {
+  'use server';
+
+  try {
+    const supabase = await createServerClient();
+
+    const id = formData.get('id') as string;
+    const name = formData.get('name') as string;
+    const breed = formData.get('breed') as string;
+    const gender = formData.get('gender') as string;
+    const age = formData.get('age') as string;
+    const weight = formData.get('weight') as string;
+    const location = formData.get('location') as string;
+    const status = formData.get('status') as string;
+    const rescue_date = formData.get('rescue_date') as string;
+    const image = formData.get('image') as File;
+    const bio = formData.get('bio') as string;
+
+    // Handle vaccinations JSON
+    const vaccinationsRaw = formData.get('vaccinations') as string;
+    let vaccinations = [];
+    if (vaccinationsRaw && vaccinationsRaw.trim() !== '[]') {
+      try {
+        vaccinations = JSON.parse(vaccinationsRaw);
+        if (!Array.isArray(vaccinations)) {
+          throw new Error('Vaccinations must be a JSON array');
+        }
+      } catch (parseError) {
+        const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+        throw new Error('Invalid vaccinations JSON format: ' + errorMessage);
+      }
+    }
+
+    let imageUrl = '';
+
+    // Optional: new photo upload
+    if (image && image.size > 0 && image.type.startsWith('image/')) {
+      const fileName = `${Date.now()}-${image.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('stray-photos')
+        .upload(fileName, image);
+
+      if (uploadError) throw new Error(`Image upload failed: ${uploadError.message}`);
+
+      const { data: urlData } = supabase.storage.from('stray-photos').getPublicUrl(fileName);
+      imageUrl = urlData.publicUrl;
+    }
+
+    const updateData = {
+      name: name || null,
+      breed: breed || null,
+      gender: gender || null,
+      age: age || null,
+      weight: weight || null,
+      location: location || null,
+      status: status || 'Available',
+      rescue_date: rescue_date ? new Date(rescue_date).toISOString() : null,
+      image_url: imageUrl || null, // only update if new photo
+      bio: bio || null,
+      vaccinations, // updated array
+    };
+
+    const { error } = await supabase
+      .from('strays')
+      .update(updateData)
+      .eq('id', id);
+
+    if (error) throw new Error(`Update failed: ${error.message}`);
+
+    revalidatePath('/admin/strays');
+    redirect('/admin/strays');
+  } catch (error) {
+    console.error('Update stray error:', error);
+    throw error;
+  }
 }
