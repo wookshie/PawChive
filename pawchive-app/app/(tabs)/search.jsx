@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,90 +8,68 @@ import {
   StyleSheet,
   FlatList,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { supabase } from '@/utils/supabase'; // ← Your Supabase client import (adjust path if needed)
 
 export default function SearchScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('All');
+  const [strays, setStrays] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [strays, setStrays] = useState([
-    {
-      id: 1,
-      name: 'Charlie',
-      image: require('../../assets/strays/charlie.png'),
-      gender: 'Male',
-      location: 'CEIT',
-      status: 'Available',
-      breed: 'Mixed Breed',
-      isFavorited: false,
-    },
-    {
-      id: 2,
-      name: 'Bella',
-      image: require('../../assets/strays/bella.png'),
-      gender: 'Female',
-      location: 'CAS',
-      status: 'Available',
-      breed: 'Tabby Cat',
-      isFavorited: false,
-    },
-    {
-      id: 3,
-      name: 'Rocky',
-      image: require('../../assets/strays/rocky.png'),
-      gender: 'Male',
-      location: 'University Library',
-      status: 'Under Care',
-      breed: 'Labrador Mix',
-      isFavorited: false,
-    },
-    {
-      id: 4,
-      name: 'Mimi',
-      image: require('../../assets/strays/mimi.png'),
-      gender: 'Female',
-      location: 'Admin Building',
-      status: 'Available',
-      breed: 'Persian Mix',
-      isFavorited: false,
-    },
-    {
-      id: 5,
-      name: 'Duke',
-      image: require('../../assets/strays/duke.png'),
-      gender: 'Male',
-      location: 'Bleachers',
-      status: 'Available',
-      breed: 'German Shepherd Mix',
-      isFavorited: false,
-    },
-    {
-      id: 6,
-      name: 'Luna',
-      image: require('../../assets/strays/luna.png'),
-      gender: 'Female',
-      location: 'Arts Building',
-      status: 'Under Care',
-      breed: 'Siamese Mix',
-      isFavorited: false,
-    },
-  ]);
+  // Fetch strays from Supabase + set up real-time subscription
+  useEffect(() => {
+    const fetchStrays = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('strays')
+          .select('id, name, breed, gender, age, weight, location, status, rescue_date, image_url')
+          .order('created_at', { ascending: false });
 
-  const toggleFavorite = (id) => {
-    setStrays(prev =>
-      prev.map(stray =>
-        stray.id === id ? { ...stray, isFavorited: !stray.isFavorited } : stray
+        if (error) throw error;
+        setStrays(data || []);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching strays:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStrays();
+
+    // Real-time subscription (auto-update when admin changes data)
+    const channel = supabase
+      .channel('strays-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'strays' },
+        (payload) => {
+          console.log('Stray changed!', payload);
+          fetchStrays(); // Refresh list on any insert/update/delete
+        }
       )
-    );
-  };
+      .subscribe();
 
+    // Cleanup on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Apply search & filter locally
   const filteredStrays = strays.filter(stray => {
-    const matchesSearch = stray.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          stray.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      stray.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      stray.location?.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesFilter =
       selectedFilter === 'All' ||
       (selectedFilter === 'Available' && stray.status === 'Available') ||
@@ -105,26 +83,23 @@ export default function SearchScreen() {
   const renderStray = ({ item }) => (
     <TouchableOpacity
       style={styles.strayCard}
-      onPress={() => {
-        console.log(`Navigating to stray/${item.id}`);
-        router.push(`/stray/${item.id}`);
-      }}
+      onPress={() => router.push(`/stray/${item.id}`)}
       activeOpacity={0.9}
     >
       <View style={styles.imageContainer}>
-        <Image source={item.image} style={styles.strayImage} resizeMode="cover" />
+        <Image
+          source={{ uri: item.image_url || 'https://via.placeholder.com/300' }} // Use Supabase image_url or fallback
+          style={styles.strayImage}
+          resizeMode="cover"
+        />
         <TouchableOpacity
           style={styles.favoriteBtn}
           onPress={(e) => {
             e.stopPropagation();
-            toggleFavorite(item.id);
+            // Add favorite toggle logic here if needed
           }}
         >
-          <Ionicons
-            name={item.isFavorited ? 'heart' : 'heart-outline'}
-            size={22}
-            color={item.isFavorited ? '#FF4081' : '#fff'}
-          />
+          <Ionicons name="heart-outline" size={22} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -150,10 +125,7 @@ export default function SearchScreen() {
   );
 
   return (
-    <SafeAreaView 
-      style={styles.container} 
-      edges={['top', 'left', 'right']} 
-    >
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>🐶 Meet Our Campus Strays</Text>
@@ -178,14 +150,16 @@ export default function SearchScreen() {
               key={filter}
               style={[
                 styles.filterPill,
-                selectedFilter === filter && styles.activeFilter
+                selectedFilter === filter && styles.activeFilter,
               ]}
               onPress={() => setSelectedFilter(filter)}
             >
-              <Text style={[
-                styles.filterText,
-                selectedFilter === filter && styles.activeFilterText
-              ]}>
+              <Text
+                style={[
+                  styles.filterText,
+                  selectedFilter === filter && styles.activeFilterText,
+                ]}
+              >
                 {filter}
               </Text>
             </TouchableOpacity>
@@ -193,40 +167,40 @@ export default function SearchScreen() {
         </ScrollView>
       </View>
 
-      {/* Stray Grid */}
-      <FlatList
-        data={filteredStrays}
-        renderItem={renderStray}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.grid}
-        columnWrapperStyle={styles.gridRow}
-        showsVerticalScrollIndicator={false}
-      />
+      {/* Loading / Error / Empty / List */}
+      {loading ? (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#2196F3" />
+        </View>
+      ) : error ? (
+        <View style={styles.centerContainer}>
+          <Text style={styles.errorText}>Error: {error}</Text>
+        </View>
+      ) : filteredStrays.length === 0 ? (
+        <View style={styles.centerContainer}>
+          <Text style={styles.emptyText}>No matching strays found</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredStrays}
+          renderItem={renderStray}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          contentContainerStyle={styles.grid}
+          columnWrapperStyle={styles.gridRow}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
+// Styles (kept your original + added loading/empty states)
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f0f9ff',
-  },
-  header: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
-  },
+  container: { flex: 1, backgroundColor: '#f0f9ff' },
+  header: { padding: 20, paddingTop: 10 },
+  title: { fontSize: 30, fontWeight: 'bold', color: '#333', marginBottom: 4 },
+  subtitle: { fontSize: 16, color: '#666', marginBottom: 20 },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -239,18 +213,9 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
-  searchIcon: {
-    marginRight: 12,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
-  filterRow: {
-    marginTop: 16,
-    marginBottom: 10,
-  },
+  searchIcon: { marginRight: 12 },
+  searchInput: { flex: 1, fontSize: 16, color: '#333' },
+  filterRow: { marginTop: 16, marginBottom: 10 },
   filterPill: {
     backgroundColor: '#e0e0e0',
     paddingHorizontal: 18,
@@ -258,24 +223,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 12,
   },
-  activeFilter: {
-    backgroundColor: '#2196F3',
-  },
-  filterText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '600',
-  },
-  activeFilterText: {
-    color: '#fff',
-  },
-  grid: {
-    paddingHorizontal: 12,
-    paddingBottom: 20,
-  },
-  gridRow: {
-    justifyContent: 'space-between',
-  },
+  activeFilter: { backgroundColor: '#2196F3' },
+  filterText: { fontSize: 14, color: '#666', fontWeight: '600' },
+  activeFilterText: { color: '#fff' },
+  grid: { paddingHorizontal: 12, paddingBottom: 20 },
+  gridRow: { justifyContent: 'space-between' },
   strayCard: {
     width: '48%',
     backgroundColor: '#fff',
@@ -287,15 +239,8 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-  imageContainer: {
-    aspectRatio: 1,
-    backgroundColor: '#f0f0f0',
-    position: 'relative',
-  },
-  strayImage: {
-    width: '100%',
-    height: '100%',
-  },
+  imageContainer: { aspectRatio: 1, backgroundColor: '#f0f0f0', position: 'relative' },
+  strayImage: { width: '100%', height: '100%' },
   favoriteBtn: {
     position: 'absolute',
     top: 10,
@@ -307,48 +252,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  strayInfo: {
-    padding: 14,
-  },
-  nameRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  strayName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  availableBadge: {
-    backgroundColor: '#4CAF50',
-  },
-  underCareBadge: {
-    backgroundColor: '#FF9800',
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  breedText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 6,
-  },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  locationText: {
-    fontSize: 13,
-    color: '#888',
-    marginLeft: 6,
-  },
+  strayInfo: { padding: 14 },
+  nameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  strayName: { fontSize: 18, fontWeight: 'bold', color: '#333' },
+  statusBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
+  availableBadge: { backgroundColor: '#4CAF50' },
+  underCareBadge: { backgroundColor: '#FF9800' },
+  statusText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  breedText: { fontSize: 14, color: '#666', marginBottom: 6 },
+  locationRow: { flexDirection: 'row', alignItems: 'center' },
+  locationText: { fontSize: 13, color: '#888', marginLeft: 6 },
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { color: '#dc2626', fontSize: 16, textAlign: 'center' },
+  emptyText: { color: '#666', fontSize: 18, textAlign: 'center' },
 });
