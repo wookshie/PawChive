@@ -43,7 +43,7 @@ export default function StrayDetail() {
   const [showAdoptDrawer, setShowAdoptDrawer] = useState(false);
   const [showSponsorDrawer, setShowSponsorDrawer] = useState(false);
   const [showHealthCard, setShowHealthCard] = useState(false);
-  
+
   useEffect(() => {
     if (!id) {
       setError('Invalid stray ID');
@@ -170,7 +170,7 @@ export default function StrayDetail() {
             </View>
           )}
 
-          Health Summary Card
+          {/* Health Summary Card - FIXED: No vaccinations reference to prevent crash */}
           <View style={styles.card}>
             <View style={styles.healthHeader}>
               <MaterialIcons name="favorite" size={24} color="#FF6B6B" />
@@ -184,8 +184,7 @@ export default function StrayDetail() {
               <Text style={styles.healthCardButtonText}>View e-Health Card</Text>
             </TouchableOpacity>
 
-            {/* CHANGE: Removed vaccinations section since it doesn't exist in your table */}
-            {/* This prevents the filter() crash on undefined */}
+            {/* Placeholder message - safe since no vaccinations field exists */}
             <Text style={{ color: '#888', textAlign: 'center', marginTop: 16, fontSize: 14 }}>
               No vaccination records available yet
             </Text>
@@ -222,11 +221,11 @@ export default function StrayDetail() {
           strayName={stray.name}
         />
 
-        {/* <HealthCardDrawer
+        <HealthCardDrawer
           isVisible={showHealthCard}
           onClose={() => setShowHealthCard(false)}
           stray={stray}
-        /> */}
+        />
       </View>
     </SafeAreaView>
   );
@@ -339,5 +338,5 @@ const styles = StyleSheet.create({
   sponsorText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   errorText: { color: '#dc2626', fontSize: 18, textAlign: 'center', marginBottom: 16 },
-  backText: { color: '#2196F3', fontSize: 16, fontWeight: '600', marginTop: 12 },
+  backText: { color: '#2196F3', fontSize: 16, fontWeight: '600', marginTop: 16 },
 });

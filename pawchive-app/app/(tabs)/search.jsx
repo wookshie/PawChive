@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/utils/supabase'; // ← Your Supabase client import (adjust path if needed)
+import { supabase } from '@/utils/supabase'; // ← Your Supabase client import
 
 export default function SearchScreen() {
   const router = useRouter();
@@ -23,14 +23,14 @@ export default function SearchScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch strays from Supabase + set up real-time subscription
+  // Fetch strays from Supabase + real-time subscription
   useEffect(() => {
     const fetchStrays = async () => {
       try {
         setLoading(true);
         const { data, error } = await supabase
           .from('strays')
-          .select('id, name, breed, gender, age, weight, location, status, rescue_date, image_url')
+          .select('id, name, breed, gender, age, weight, location, status, rescue_date, image_url, vaccinations')
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -45,7 +45,7 @@ export default function SearchScreen() {
 
     fetchStrays();
 
-    // Real-time subscription (auto-update when admin changes data)
+    // Real-time: auto-refresh when admin changes anything (including vaccinations)
     const channel = supabase
       .channel('strays-changes')
       .on(
@@ -53,18 +53,17 @@ export default function SearchScreen() {
         { event: '*', schema: 'public', table: 'strays' },
         (payload) => {
           console.log('Stray changed!', payload);
-          fetchStrays(); // Refresh list on any insert/update/delete
+          fetchStrays(); // Refresh list
         }
       )
       .subscribe();
 
-    // Cleanup on unmount
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
 
-  // Apply search & filter locally
+  // Local filter (search + status)
   const filteredStrays = strays.filter(stray => {
     const matchesSearch =
       stray.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -80,6 +79,15 @@ export default function SearchScreen() {
 
   const filters = ['All', 'Available', 'Under Care'];
 
+  // Helper: Vaccination summary for card
+  const getVaccinationSummary = (stray) => {
+    if (!Array.isArray(stray.vaccinations) || stray.vaccinations.length === 0) {
+      return 'None yet';
+    }
+    const completed = stray.vaccinations.filter(v => v?.status === 'Completed').length;
+    return `Completed: ${completed}/${stray.vaccinations.length}`;
+  };
+
   const renderStray = ({ item }) => (
     <TouchableOpacity
       style={styles.strayCard}
@@ -88,7 +96,7 @@ export default function SearchScreen() {
     >
       <View style={styles.imageContainer}>
         <Image
-          source={{ uri: item.image_url || 'https://via.placeholder.com/300' }} // Use Supabase image_url or fallback
+          source={{ uri: item.image_url || 'https://via.placeholder.com/300' }}
           style={styles.strayImage}
           resizeMode="cover"
         />
@@ -96,7 +104,7 @@ export default function SearchScreen() {
           style={styles.favoriteBtn}
           onPress={(e) => {
             e.stopPropagation();
-            // Add favorite toggle logic here if needed
+            // Favorite toggle logic here if needed
           }}
         >
           <Ionicons name="heart-outline" size={22} color="#fff" />
@@ -119,6 +127,13 @@ export default function SearchScreen() {
         <View style={styles.locationRow}>
           <Ionicons name="location-outline" size={14} color="#888" />
           <Text style={styles.locationText}>{item.location}</Text>
+        </View>
+
+        {/* NEW: Vaccination summary */}
+        <View style={{ marginTop: 8 }}>
+          <Text style={{ fontSize: 12, color: '#555', fontWeight: '500' }}>
+            {getVaccinationSummary(item)}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -195,7 +210,7 @@ export default function SearchScreen() {
   );
 }
 
-// Styles (kept your original + added loading/empty states)
+// Styles (your original + small addition for vaccination text)
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f0f9ff' },
   header: { padding: 20, paddingTop: 10 },
