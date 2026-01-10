@@ -1,4 +1,3 @@
-// app/stray/[id].tsx
 import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
@@ -12,7 +11,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { supabase } from '@/utils/supabase'; // Your Supabase client import (adjust path if needed)
+import { supabase } from '@/utils/supabase';
 import AdoptDrawer from '@/components/adopt';
 import SponsorDrawer from '@/components/sponsor';
 import HealthCardDrawer from '@/components/healthCard';
@@ -56,7 +55,7 @@ export default function StrayDetail() {
         setLoading(true);
         const { data, error } = await supabase
           .from('strays')
-          .select('*') // Fetch all columns
+          .select('*')
           .eq('id', id)
           .single();
 
@@ -112,7 +111,10 @@ export default function StrayDetail() {
             resizeMode="cover"
           />
 
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => router.replace('/(tabs)/search')}
+          >
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
 

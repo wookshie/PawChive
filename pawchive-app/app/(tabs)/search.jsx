@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/utils/supabase'; // ← Your Supabase client import
+import { supabase } from '@/utils/supabase';
 
 export default function SearchScreen() {
   const router = useRouter();
