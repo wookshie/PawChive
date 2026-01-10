@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   ScrollView,
   View,
@@ -9,15 +9,23 @@ import {
   Dimensions,
   Platform,
   StatusBar,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { STRAYS } from '../../constants/strays';
 import { useRouter } from 'expo-router';
+import { supabase } from '@/utils/supabase'; // ← Your Supabase client import (adjust path)
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
+
+  const [featuredStrays, setFeaturedStrays] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const steps = [
     { icon: require('../../assets/step-find.png'), title: 'Find a Stray', desc: 'Browse available campus strays looking for homes and care.' },
@@ -25,19 +33,70 @@ export default function HomeScreen() {
     { icon: require('../../assets/step-adopt.png'), title: 'Give Them a Future', desc: 'Adopt, sponsor, or volunteer to help campus strays.' },
   ];
 
+  // Mock recent activity (you can fetch this from Supabase later)
   const recentActivity = [
     { icon: 'syringe', action: 'Charlie received vaccination', time: '2 hours ago', color: '#FF6B6B' },
-    { icon: 'heart', action: 'Bella found a sponsor', time: '5 hours ago', color: '#ff4081'},
+    { icon: 'heart', action: 'Bella found a sponsor', time: '5 hours ago', color: '#ff4081' },
     { icon: 'home', action: 'Rocky was adopted!', time: '1 day ago', color: '#4CAF50' },
   ];
 
+  // Fetch featured strays from Supabase (latest 3)
+  const fetchFeaturedStrays = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('strays')
+        .select('id, name, breed, location, status, image_url')
+        .order('created_at', { ascending: false })
+        .limit(3); // Show only 3 featured
+
+      if (error) throw error;
+      setFeaturedStrays(data || []);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching featured strays:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchFeaturedStrays();
+
+    // Real-time subscription for auto-update
+    const channel = supabase
+      .channel('strays-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'strays' },
+        () => {
+          console.log('Stray data changed - refreshing featured list');
+          fetchFeaturedStrays();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchFeaturedStrays]);
+
+  // Pull-to-refresh handler
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchFeaturedStrays();
+  }, [fetchFeaturedStrays]);
+
   return (
     <View style={styles.safeContainer}>
-      <ScrollView 
-        style={styles.container} 
-        showsVerticalScrollIndicator={false} 
-        // ✅ Increased padding so the bottom doesn't hide behind the Tab Bar
+      <ScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#2196F3']} />
+        }
       >
         {/* Header */}
         <View style={styles.header}>
@@ -76,13 +135,12 @@ export default function HomeScreen() {
             </View>
           ))}
 
-          {/* ✅ Fixed typo: was '/seacrh', now '/search' */}
           <TouchableOpacity style={styles.accentButton} onPress={() => router.push('/search')}>
             <Text style={styles.accentButtonText}>Browse Strays</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Featured Strays */}
+        {/* Featured Strays - Now from Supabase */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.boldSectionTitle}>Featured Strays</Text>
@@ -91,26 +149,39 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {STRAYS.map((stray) => (
-            <TouchableOpacity
-              key={stray.id}
-              style={styles.strayCard}
-              // ✅ Fixed Path: Added '/' to make it absolute
-              onPress={() => router.push(`/stray/${stray.id}`)}
-            >
-              <Image source={stray.image} style={styles.strayImage} resizeMode="cover" />
-              <View style={styles.strayInfo}>
-                <Text style={styles.strayName}>{stray.name}</Text>
-                <View style={styles.locationRow}>
-                  <MaterialIcons name="location-on" size={14} color="#666" />
-                  <Text style={styles.strayLocation}>{stray.location}</Text>
+          {loading ? (
+            <View style={styles.centerContainer}>
+              <ActivityIndicator size="large" color="#2196F3" />
+            </View>
+          ) : error ? (
+            <Text style={{ color: '#dc2626', textAlign: 'center' }}>Error loading featured strays</Text>
+          ) : featuredStrays.length === 0 ? (
+            <Text style={{ color: '#666', textAlign: 'center' }}>No featured strays yet</Text>
+          ) : (
+            featuredStrays.map((stray) => (
+              <TouchableOpacity
+                key={stray.id}
+                style={styles.strayCard}
+                onPress={() => router.push(`/stray/${stray.id}`)}
+              >
+                <Image
+                  source={{ uri: stray.image_url || 'https://via.placeholder.com/300' }}
+                  style={styles.strayImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.strayInfo}>
+                  <Text style={styles.strayName}>{stray.name}</Text>
+                  <View style={styles.locationRow}>
+                    <MaterialIcons name="location-on" size={14} color="#666" />
+                    <Text style={styles.strayLocation}>{stray.location}</Text>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>Available</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{stray.status || 'Available'}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
 
         {/* Recent Activity */}
@@ -200,7 +271,7 @@ const styles = StyleSheet.create({
   logoEmoji: { fontSize: 20 },
   appName: { fontSize: 20, fontWeight: 'bold' },
   qrButton: { padding: 8 },
-
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   section: { padding: 20 },
   heroImage: { width: '100%', height: 200, borderRadius: 24, marginBottom: 16 },
   heroTitle: { fontSize: 26, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
