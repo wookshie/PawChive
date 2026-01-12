@@ -55,7 +55,7 @@ export default function EditStrayForm({ stray }: { stray: Stray }) {
           age: formData.age,
           status: formData.status,
           location: formData.location,
-          bio: formData.bio.trim() || null, // Save empty bio as null
+          bio: formData.bio.trim() || null,
         })
         .eq('id', stray.id);
 

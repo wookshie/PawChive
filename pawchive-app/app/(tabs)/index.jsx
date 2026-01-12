@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/utils/supabase'; // ← Your Supabase client import (adjust path)
+import { supabase } from '@/utils/supabase';
 
 const { width } = Dimensions.get('window');
 
@@ -33,7 +33,7 @@ export default function HomeScreen() {
     { icon: require('../../assets/step-adopt.png'), title: 'Give Them a Future', desc: 'Adopt, sponsor, or volunteer to help campus strays.' },
   ];
 
-  // Mock recent activity (you can fetch this from Supabase later)
+  // Mock recent activity data
   const recentActivity = [
     { icon: 'syringe', action: 'Charlie received vaccination', time: '2 hours ago', color: '#FF6B6B' },
     { icon: 'heart', action: 'Bella found a sponsor', time: '5 hours ago', color: '#ff4081' },

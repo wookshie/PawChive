@@ -161,7 +161,7 @@ export default async function NewStrayPage() {
   );
 }
 
-// Server Action - handles form submit
+// Server Action
 async function createStrayAction(formData: FormData) {
   'use server';
 
@@ -179,7 +179,6 @@ async function createStrayAction(formData: FormData) {
     const image = formData.get('image') as File;
     const bio = formData.get('bio') as string;
 
-    // Read and parse vaccinations JSON
     const vaccinationsRaw = formData.get('vaccinations') as string;
     let vaccinations = [];
     if (vaccinationsRaw && vaccinationsRaw.trim() !== '[]') {
@@ -218,7 +217,7 @@ async function createStrayAction(formData: FormData) {
       rescue_date: rescue_date ? new Date(rescue_date).toISOString() : null,
       image_url: imageUrl || null,
       bio: bio || null,
-      vaccinations, // Now saved!
+      vaccinations,
     };
 
     const { error } = await supabase.from('strays').insert(insertData);

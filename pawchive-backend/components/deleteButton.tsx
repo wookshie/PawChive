@@ -1,4 +1,3 @@
-// app/components/DeleteButton.tsx
 'use client';
 
 import { useTransition } from 'react';

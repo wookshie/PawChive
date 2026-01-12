@@ -1,4 +1,3 @@
-// app/(auth)/signup.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -12,7 +11,7 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; // ← Modern safe area
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { CheckBox } from 'react-native-elements';
@@ -91,7 +90,7 @@ export default function SignupScreen() {
   return (
     <SafeAreaView 
       style={styles.container} 
-      edges={['top', 'left', 'right']} // ← Applies safe insets only where needed
+      edges={['top', 'left', 'right']}
     >
       <StatusBar style="auto" />
       <KeyboardAvoidingView
@@ -216,12 +215,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 20, // ← Small internal top padding for content
+    paddingTop: 20,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8, // ← Small extra top margin for breathing room
+    marginTop: 8,
     marginBottom: 12,
   },
   backText: {

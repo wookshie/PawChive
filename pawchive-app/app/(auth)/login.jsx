@@ -1,4 +1,3 @@
-// app/(auth)/login.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -12,7 +11,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; // ← Modern import
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
@@ -143,12 +142,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 20, // Small internal top padding for content
+    paddingTop: 20,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8, // ← Small extra top margin for breathing room
+    marginTop: 8,
     marginBottom: 32,
   },
   backText: {

@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/utils/supabase'; // Your Supabase client
+import { supabase } from '@/utils/supabase';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function ProfileScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [editModalVisible, setEditModalVisible] = useState(false);
 
-  // Mock stats & activity (replace with real data later)
+  // Mock stats & activity
   const stats = [
     { label: 'Strays Helped', value: '12', color: '#F44336', icon: 'heart' },
     { label: 'Adoptions', value: '3', color: '#4CAF50', icon: 'checkmark-circle' },
@@ -45,7 +45,7 @@ export default function ProfileScreen() {
     { action: 'Donated pet food', date: 'Sept 5, 2024', icon: 'fast-food', color: '#FF9800' },
   ];
 
-  // Load user data from Supabase session on mount
+  // Future: Load user data from Supabase session on mount
   useEffect(() => {
     const loadUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -65,7 +65,7 @@ export default function ProfileScreen() {
       return;
     }
 
-    // TODO: In real app, update user profile via Supabase
+    // Future: Update user profile via Supabase
     Alert.alert('Success', 'Profile updated successfully!');
     setEditModalVisible(false);
   };
@@ -85,7 +85,6 @@ export default function ProfileScreen() {
               const { error } = await supabase.auth.signOut();
               if (error) throw error;
 
-              // Clear local state and redirect
               setUser(null);
               router.replace('/(auth)/landing');
             } catch (err) {
@@ -405,7 +404,6 @@ const styles = StyleSheet.create({
   },
   logoutText: { fontSize: 16, color: '#F44336', marginLeft: 16, flex: 1, fontWeight: '600' },
 
-  // Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

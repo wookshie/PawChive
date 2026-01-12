@@ -227,7 +227,7 @@ export default async function EditStrayPage({
   );
 }
 
-// Server Action - handles update
+// Server Action
 async function updateStrayAction(formData: FormData) {
   'use server';
 
@@ -263,7 +263,7 @@ async function updateStrayAction(formData: FormData) {
 
     let imageUrl = '';
 
-    // Optional: new photo upload
+    // New photo upload
     if (image && image.size > 0 && image.type.startsWith('image/')) {
       const fileName = `${Date.now()}-${image.name}`;
       const { error: uploadError } = await supabase.storage
@@ -285,9 +285,9 @@ async function updateStrayAction(formData: FormData) {
       location: location || null,
       status: status || 'Available',
       rescue_date: rescue_date ? new Date(rescue_date).toISOString() : null,
-      image_url: imageUrl || null, // only update if new photo
+      image_url: imageUrl || null,
       bio: bio || null,
-      vaccinations, // updated array
+      vaccinations,
     };
 
     const { error } = await supabase

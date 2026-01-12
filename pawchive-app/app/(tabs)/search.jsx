@@ -53,7 +53,7 @@ export default function SearchScreen() {
         { event: '*', schema: 'public', table: 'strays' },
         (payload) => {
           console.log('Stray changed!', payload);
-          fetchStrays(); // Refresh list
+          fetchStrays();
         }
       )
       .subscribe();
@@ -104,7 +104,6 @@ export default function SearchScreen() {
           style={styles.favoriteBtn}
           onPress={(e) => {
             e.stopPropagation();
-            // Favorite toggle logic here if needed
           }}
         >
           <Ionicons name="heart-outline" size={22} color="#fff" />
@@ -129,7 +128,7 @@ export default function SearchScreen() {
           <Text style={styles.locationText}>{item.location}</Text>
         </View>
 
-        {/* NEW: Vaccination summary */}
+        {/* Vaccination summary */}
         <View style={{ marginTop: 8 }}>
           <Text style={{ fontSize: 12, color: '#555', fontWeight: '500' }}>
             {getVaccinationSummary(item)}
@@ -210,7 +209,6 @@ export default function SearchScreen() {
   );
 }
 
-// Styles (your original + small addition for vaccination text)
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f0f9ff' },
   header: { padding: 20, paddingTop: 10 },

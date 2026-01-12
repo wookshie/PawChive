@@ -64,9 +64,8 @@ export default function RootLayout() {
 
   }, [session, isReady, segments, router]);
 
-  // Show nothing until auth decision is made (prevents flash of wrong screen)
   if (!isReady) {
-    return null; // Or replace with a <SplashScreen /> component
+    return null;
   }
 
   return (

@@ -76,7 +76,7 @@ export default function MessagesScreen() {
 
   const handleSendMessage = () => {
     if (messageInput.trim()) {
-      // In real app: send message to backend
+      // Future: Send message to backend
       setMessageInput('');
     }
   };
@@ -246,8 +246,6 @@ export default function MessagesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-
-  // Conversations List
   listHeader: { padding: 20, paddingTop: 10, backgroundColor: '#fff' },
   pageTitle: { fontSize: 28, fontWeight: 'bold', marginBottom: 16 },
   searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f0f0f0', borderRadius: 30, paddingHorizontal: 16 },
@@ -302,7 +300,6 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 5 : 50,
   },
 
-  // Chat Detail
   chatHeader: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -172,7 +172,7 @@ export default function StrayDetail() {
             </View>
           )}
 
-          {/* Health Summary Card - FIXED: No vaccinations reference to prevent crash */}
+          {/* Health Summary Card */}
           <View style={styles.card}>
             <View style={styles.healthHeader}>
               <MaterialIcons name="favorite" size={24} color="#FF6B6B" />
@@ -186,7 +186,7 @@ export default function StrayDetail() {
               <Text style={styles.healthCardButtonText}>View e-Health Card</Text>
             </TouchableOpacity>
 
-            {/* Placeholder message - safe since no vaccinations field exists */}
+            {/* Placeholder message */}
             <Text style={{ color: '#888', textAlign: 'center', marginTop: 16, fontSize: 14 }}>
               No vaccination records available yet
             </Text>
