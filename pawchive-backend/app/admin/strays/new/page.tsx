@@ -1,4 +1,3 @@
-// app/admin/strays/new/page.tsx
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createServerClient } from '@/lib/supabase';
@@ -9,13 +8,13 @@ export default async function NewStrayPage() {
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
-      {/* Back link */}
-      <div className="mb-6">
+      {/* Back button */}
+      <div className="mb-8">
         <Link
           href="/admin/strays"
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+          className="inline-flex items-center px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium rounded-lg transition shadow-sm border border-gray-300"
         >
-          ← Back to Strays List
+          ← Back to All Strays
         </Link>
       </div>
 
@@ -180,7 +179,7 @@ async function createStrayAction(formData: FormData) {
     const image = formData.get('image') as File;
     const bio = formData.get('bio') as string;
 
-    // NEW: Read and parse vaccinations JSON
+    // Read and parse vaccinations JSON
     const vaccinationsRaw = formData.get('vaccinations') as string;
     let vaccinations = [];
     if (vaccinationsRaw && vaccinationsRaw.trim() !== '[]') {

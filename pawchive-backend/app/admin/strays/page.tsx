@@ -1,4 +1,3 @@
-// app/admin/strays/page.tsx
 import { createServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
